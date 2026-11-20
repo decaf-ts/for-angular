@@ -1,5 +1,6 @@
 // import 'jest-preset-angular/setup-jest'; // deprecated
 import { TextDecoder, TextEncoder } from 'util';
+import { ReadableStream, TransformStream, WritableStream } from 'stream/web';
 import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
 
 setupZoneTestEnv();
@@ -71,3 +72,15 @@ class MockResizeObserver {
 
 (global as Record<string, unknown>)['IntersectionObserver'] = MockIntersectionObserver;
 (global as Record<string, unknown>)['ResizeObserver'] = MockResizeObserver;
+
+// JSDOM does not expose the Web Streams globals the @ai-sdk chat transport
+// stack (eventsource-parser, ai) constructs at module load.
+if (typeof (global as Record<string, unknown>)['ReadableStream'] === 'undefined') {
+  (global as Record<string, unknown>)['ReadableStream'] = ReadableStream;
+}
+if (typeof (global as Record<string, unknown>)['WritableStream'] === 'undefined') {
+  (global as Record<string, unknown>)['WritableStream'] = WritableStream;
+}
+if (typeof (global as Record<string, unknown>)['TransformStream'] === 'undefined') {
+  (global as Record<string, unknown>)['TransformStream'] = TransformStream;
+}

@@ -1,0 +1,19 @@
+<aside class="genui-panel" [attr.aria-label]="title">
+  <header class="genui-panel__header">
+    <span class="genui-panel__badge">{{ badge }}</span>
+    <h3 class="genui-panel__title">{{ spec()?.title ?? title }}</h3>
+    <button type="button" class="genui-panel__close" [attr.aria-label]="closeLabel" (click)="close()">✕</button>
+  </header>
+  <div class="genui-panel__body">
+    @if (spec(); as panelSpec) {
+      <ngx-decaf-genui-block
+        [spec]="panelSpec"
+        [context]="context()"
+        (action)="action.emit($event)"
+        (openLink)="openLink.emit($event)"
+      />
+    } @else {
+      <p class="genui-panel__empty">{{ emptyText }}</p>
+    }
+  </div>
+</aside>

@@ -3,6 +3,7 @@
  * @summary Public barrel for the `for-angular/agent` chat UI export.
  * @description Re-exports the complete agent chat surface: transport contract
  * types, injection tokens, decaf ui-decorator models, the envelope fold,
+ * the envelope → `UIMessageChunk` producer and legacy-transport adapter,
  * transcript renderer, the shared media-URL allowlist ({@link safeMediaUrl}),
  * transport/service implementations (including the
  * deterministic fake transport and in-memory data sources), the translation
@@ -15,8 +16,10 @@ export * from "./models/AgentChatComposerModel";
 export * from "./models/AgentChatMessageModel";
 export * from "./utils/agentMediaUrl";
 export * from "./services/agentEnvelopeFold";
+export * from "./services/agentEnvelopeChunks";
 export * from "./services/agentTranscriptMarkdown";
 export * from "./services/GraphRunAgentChatTransport";
+export * from "./services/AgentChatLegacyChatTransportAdapter";
 export * from "./services/AgentChatFakeTransport";
 export * from "./services/AgentChatService";
 export * from "./i18n/agent-translate-fallback.pipe";
@@ -65,3 +68,7 @@ export * from "./components/chat-nested-agent/chat-nested-agent.component";
 export * from "./components/chat-progress/chat-progress.component";
 export * from "./components/chat-approval/chat-approval.component";
 export * from "./components/chat-telemetry/chat-telemetry.component";
+export * from "./components/dsw-sidebar/dsw-sidebar.component";
+export * from "./components/dsw-settings-drawer/dsw-settings-drawer.component";
+export * from "./components/dsw-session-header/dsw-session-header.component";
+export * from "./components/dsw-composer-shell/dsw-composer-shell.component";

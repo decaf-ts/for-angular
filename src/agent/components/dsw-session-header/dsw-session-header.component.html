@@ -1,0 +1,46 @@
+<header class="dsw-session-header">
+  <div class="dsw-session-header__leading">
+    <ng-content select="[dswSessionHeaderLeading]" />
+  </div>
+
+  <div class="dsw-session-header__row">
+    <div class="dsw-session-header__title-cluster">
+      <h1 class="dsw-session-header__title">
+        {{ (titleKey() || '') | translateFallback: (title() || titleFallback()) }}
+      </h1>
+      @if (subtitle()) {
+        <p class="dsw-session-header__subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+
+    @if (showStatus()) {
+      <span
+        class="dsw-session-header__status"
+        [class.dsw-session-header__status--running]="status() === 'running'"
+        [class.dsw-session-header__status--done]="status() === 'done'"
+        [class.dsw-session-header__status--error]="status() === 'error'"
+        role="status"
+      >
+        <span class="dsw-session-header__status-dot" aria-hidden="true"></span>
+        <span class="dsw-session-header__status-label">
+          {{ statusLabelKey() | translateFallback: statusLabelFallback() }}
+        </span>
+      </span>
+    }
+
+    <div class="dsw-session-header__actions">
+      <ng-content select="[dswSessionHeaderActions]" />
+      @if (showMenu()) {
+        <button
+          type="button"
+          class="dsw-session-header__menu"
+          [attr.aria-label]="menuLabelKey() | translateFallback: menuLabelFallback()"
+          [attr.title]="menuLabelKey() | translateFallback: menuLabelFallback()"
+          (click)="menu.emit()"
+        >
+          <span aria-hidden="true">⋯</span>
+        </button>
+      }
+    </div>
+  </div>
+</header>

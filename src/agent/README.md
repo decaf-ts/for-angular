@@ -3,7 +3,11 @@
 Agent conversation UI for a graph workflow run. The entry point ships the
 standalone `ngx-decaf-agent-chat` component, its injectable transport contract
 and the default SSE-backed transport, the Decaf composer/message models, the
-event-envelope fold, and the translation fallback pipe.
+event-envelope fold with its `UIMessageChunk` producer, and the translation
+fallback pipe. The conversation itself runs on the `@ai-sdk/angular` `Chat`
+state machine (optional peer): `Chat` owns transcript and streaming state from
+the transport seam onward, and `AgentChatService` projects it into the
+component read model.
 
 The component composes the graph I/O viewer from the
 [`/diagrams`](../diagrams) entry point through its public specifier; it never
@@ -12,12 +16,14 @@ reaches into another entry point's source tree.
 ## Install
 
 ```bash
-npm install @decaf-ts/for-angular @decaf-ts/as-graph@^0.6.0 ng-diagram@^1.4.0
+npm install @decaf-ts/for-angular @decaf-ts/as-graph@^0.6.0 ng-diagram@^1.4.0 @ai-sdk/angular@^3.0.166
 ```
 
-`@decaf-ts/as-graph` and `ng-diagram` are **optional peer dependencies** of
-`@decaf-ts/for-angular`. `/agent` reuses the `/diagrams` transcript viewer, so
-it needs the same optional peers as that entry point. It also uses the required
+`@decaf-ts/as-graph`, `ng-diagram` and `@ai-sdk/angular` are **optional peer
+dependencies** of `@decaf-ts/for-angular`. `/agent` reuses the `/diagrams`
+transcript viewer, so it needs the same optional peers as that entry point,
+plus `@ai-sdk/angular@^3.0.166`, which backs the `Chat` state machine driving
+the conversation. It also uses the required
 root peers: `@angular/*`, `@ionic/angular`, `@ngx-translate/core`, `rxjs`,
 `@decaf-ts/core`, `@decaf-ts/db-decorators`, `@decaf-ts/decorator-validation`
 and `@decaf-ts/ui-decorators`.
@@ -29,6 +35,7 @@ and `@decaf-ts/ui-decorators`.
 | `@angular/*` | `21.2.17` – `21.2.25` |
 | `@decaf-ts/as-graph` | `^0.6.0` (optional peer) |
 | `ng-diagram` | `^1.4.0` (optional peer) |
+| `@ai-sdk/angular` | `^3.0.166` (optional peer) |
 | `@decaf-ts/for-angular` | `0.11.x` |
 
 `@decaf-ts/as-graph` is MIT-licensed; `ng-diagram` is Apache-2.0. See the
@@ -68,6 +75,11 @@ export const transportProvider = {
 };
 ```
 
+A transport that implements the legacy envelope-callback `AgentChatTransport`
+contract is bridged onto the SDK `ChatTransport` seam automatically
+(`AgentChatLegacyChatTransportAdapter`); a transport implementing the SDK seam
+directly (`AgentChatSdkTransport`) is used as-is.
+
 ### API
 
 | Member | Type | Purpose |
@@ -86,6 +98,9 @@ Selector: `<ngx-decaf-agent-chat>`.
 - `AgentChatComponent`
 - `AgentChatTransport`, `AgentChatTransportHandlers`, `AgentChatRunDescriptor`,
   `AgentChatSendRequest`, and the supporting view/attachment types
+- `AgentChatSdkTransport`, `AgentChatUIMessage` (with its metadata/data
+  types), `AgentChatSideChannelHandlers`, `AgentChatSideChannelSource`
+- `AgentChatLegacyChatTransportAdapter`, `AgentChatEnvelopeChunkProducer`
 - `AGENT_CHAT_TRANSPORT`, `AGENT_CHAT_SESSION_PREFIX`
 - `AgentChatService`, `GraphRunAgentChatTransport`, `agentChatFoldEnvelope`
 - `AgentChatComposerModel`, `AgentChatMessageModel`
@@ -94,8 +109,10 @@ Selector: `<ngx-decaf-agent-chat>`.
 ## Controlled-view contract
 
 The component owns only presentation state. Conversation state lives in
-`AgentChatService`, and every run is delegated to the injected
-`AGENT_CHAT_TRANSPORT`. File attachments are metadata only — their contents are
+`AgentChatService` on top of the `@ai-sdk/angular` `Chat` state machine, and
+every run is delegated to the injected `AGENT_CHAT_TRANSPORT`. `send`/`replay`
+schedule the roundtrip and return; failures surface on the service's `error`
+signal. File attachments are metadata only — their contents are
 never read. Override `AGENT_CHAT_TRANSPORT` to plug in a scripted or
 application-specific transport.
 

@@ -20,15 +20,21 @@ import type { GraphWorkflowDocument } from "@decaf-ts/as-graph/shared";
 import { GraphExecutionEventType } from "@decaf-ts/as-graph/shared";
 import { of } from "rxjs";
 
+import { isGraphRunTerminalEventType } from "@decaf-ts/as-graph/shared";
+import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
+import type { UIMessageChunk } from "ai";
+
 import {
   AGENT_CHAT_HISTORY_SOURCE,
   AGENT_CHAT_TRANSPORT,
 } from "../../tokens/agent-chat.tokens";
 import type {
   AgentChatHistoryEntry,
-  AgentChatTransport,
-  AgentChatTransportHandlers,
+  AgentChatSdkTransport,
+  AgentChatSideChannelHandlers,
+  AgentChatUIMessage,
 } from "../../types";
+import { AgentChatEnvelopeChunkProducer } from "../../services/agentEnvelopeChunks";
 import { ChatHeaderComponent } from "../chat-header/chat-header.component";
 import { AgentChatComponent } from "./agent-chat.component";
 
@@ -36,25 +42,129 @@ const RUN_ID = "run-1";
 const EVENTS_URL = "/graph/runs/run-1/events";
 const TS = "2026-01-01T00:00:00.000Z";
 
-type TransportStub = AgentChatTransport & {
-  send: jest.Mock;
-  replay: jest.Mock;
-  cancel: jest.Mock;
-};
+interface SendOptions {
+  messages: AgentChatUIMessage[];
+  body?: Record<string, unknown>;
+  metadata?: { sideChannel?: AgentChatSideChannelHandlers };
+  abortSignal?: AbortSignal;
+}
 
-function transportStub(): TransportStub {
-  return {
-    send: jest.fn().mockResolvedValue({ runId: RUN_ID, eventsUrl: EVENTS_URL }),
-    replay: jest.fn().mockResolvedValue(undefined),
+/** One SDK response stream driven by the test through the real chunk producer. */
+interface LiveRun {
+  options: SendOptions;
+  producer: AgentChatEnvelopeChunkProducer;
+  emit: (envelope: GraphRunEventEnvelope) => void;
+  close: () => void;
+  cancelled: jest.Mock;
+  aborted: jest.Mock;
+}
+
+interface TransportStub {
+  transport: AgentChatSdkTransport;
+  runs: LiveRun[];
+  sendMessages: jest.Mock;
+  reconnectToStream: jest.Mock;
+  cancel: jest.Mock;
+  close: jest.Mock;
+}
+
+/**
+ * SDK transport stub: `sendMessages` hands the @ai-sdk `Chat` a controllable
+ * `ReadableStream<UIMessageChunk>` produced by the same
+ * {@link AgentChatEnvelopeChunkProducer} the real transport uses, so the
+ * component composes against the protocol seam instead of the legacy fold.
+ */
+function sdkTransportStub(): TransportStub {
+  const runs: LiveRun[] = [];
+  const stub: TransportStub = {
+    runs,
     cancel: jest.fn().mockResolvedValue(undefined),
-  } as never as TransportStub;
+    close: jest.fn(),
+    sendMessages: jest.fn(),
+    reconnectToStream: jest.fn(),
+    transport: undefined as never,
+  };
+
+  const open = (options: SendOptions, replay: boolean): ReadableStream<UIMessageChunk> => {
+    let controller!: ReadableStreamDefaultController<UIMessageChunk>;
+    let closed = false;
+    const enqueue = (chunks: UIMessageChunk[]): void => {
+      if (closed) return;
+      for (const chunk of chunks) {
+        try {
+          controller.enqueue(chunk);
+        } catch {
+          closed = true;
+          return;
+        }
+      }
+    };
+    const close = (): void => {
+      if (closed) return;
+      closed = true;
+      try {
+        controller.close();
+      } catch {
+        /* already closed */
+      }
+    };
+    const handlers = options.metadata?.sideChannel;
+    const producer = new AgentChatEnvelopeChunkProducer({
+      runId: RUN_ID,
+      sessionId: "session-1",
+      replay,
+      handlers,
+      now: () => TS,
+    });
+    const cancelled = jest.fn();
+    const aborted = jest.fn(() => {
+      void stub.cancel(RUN_ID);
+      close();
+    });
+    const stream = new ReadableStream<UIMessageChunk>({
+      start(streamController) {
+        controller = streamController;
+        options.abortSignal?.addEventListener("abort", aborted, { once: true });
+        enqueue(producer.start());
+      },
+      cancel(reason) {
+        cancelled(reason);
+      },
+    });
+    runs.push({
+      options,
+      producer,
+      cancelled,
+      aborted,
+      emit: (envelope) => enqueue(producer.push(envelope)),
+      close,
+    });
+    return stream;
+  };
+
+  stub.sendMessages.mockImplementation((options: SendOptions) =>
+    Promise.resolve(open(options, false)),
+  );
+  stub.reconnectToStream.mockImplementation((options: SendOptions) =>
+    Promise.resolve(
+      options.body?.["descriptor"] ? open(options, true) : null,
+    ),
+  );
+  stub.transport = {
+    resumeStreamIsReplay: true,
+    sendMessages: stub.sendMessages,
+    reconnectToStream: stub.reconnectToStream,
+    cancel: stub.cancel,
+    close: stub.close,
+  } as unknown as AgentChatSdkTransport;
+  return stub;
 }
 
 function envelope(
   sequence: number,
   type: GraphExecutionEventType,
   extra: Record<string, unknown> = {},
-): Parameters<AgentChatTransportHandlers["onEvent"]>[0] {
+): GraphRunEventEnvelope {
   return {
     runId: RUN_ID,
     workflowId: "wf-1",
@@ -65,23 +175,36 @@ function envelope(
   } as never;
 }
 
-function handlersOf(stub: TransportStub): AgentChatTransportHandlers {
-  return stub.send.mock.calls[0][1] as AgentChatTransportHandlers;
+function lastRun(stub: TransportStub): LiveRun {
+  const run = stub.runs[stub.runs.length - 1];
+  expect(run).toBeDefined();
+  return run;
 }
 
-async function flush(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
+function lastUserText(options: SendOptions): string | undefined {
+  const user = [...options.messages]
+    .reverse()
+    .find((message) => message.role === "user");
+  return user?.parts
+    .filter((part): part is { type: "text"; text: string } => part.type === "text")
+    .map((part) => part.text)
+    .join("");
+}
+
+async function flush(ticks = 60): Promise<void> {
+  for (let index = 0; index < ticks; index += 1) {
+    await Promise.resolve();
+  }
 }
 
 function mount(
-  transport: TransportStub = transportStub(),
+  transport: TransportStub = sdkTransportStub(),
   providers: Provider[] = [],
 ): ComponentFixture<AgentChatComponent> {
   TestBed.configureTestingModule({
     imports: [AgentChatComponent],
     providers: [
-      { provide: AGENT_CHAT_TRANSPORT, useValue: transport },
+      { provide: AGENT_CHAT_TRANSPORT, useValue: transport.transport },
       ...providers,
     ],
   });
@@ -96,10 +219,12 @@ async function sendAndStream(
   message = "hello",
   payload: Record<string, unknown> = { response: "the agent answer" },
 ): Promise<void> {
-  await fixture.componentInstance.service.send(message);
-  handlersOf(transport).onEvent(
+  void fixture.componentInstance.service.send(message);
+  await flush();
+  lastRun(transport).emit(
     envelope(2, GraphExecutionEventType.NODE_OUTPUT, { payload }),
   );
+  await flush();
   await fixture.detectChanges();
 }
 
@@ -108,9 +233,14 @@ async function complete(
   transport: TransportStub,
   sequence = 9,
 ): Promise<void> {
-  handlersOf(transport).onEvent(
-    envelope(sequence, GraphExecutionEventType.WORKFLOW_COMPLETED),
+  const run = lastRun(transport);
+  const envelopeToEmit = envelope(
+    sequence,
+    GraphExecutionEventType.WORKFLOW_COMPLETED,
   );
+  run.emit(envelopeToEmit);
+  if (isGraphRunTerminalEventType(envelopeToEmit.type)) run.close();
+  await flush();
   await fixture.detectChanges();
 }
 
@@ -139,7 +269,7 @@ describe("AgentChatComponent", () => {
   let fixture: ComponentFixture<AgentChatComponent>;
 
   beforeEach(() => {
-    transport = transportStub();
+    transport = sdkTransportStub();
   });
 
   afterEach(() => {
@@ -211,15 +341,15 @@ describe("AgentChatComponent", () => {
       "sendMail",
     ]);
 
-    const [request] = transport.send.mock.calls[0] as unknown[];
-    expect((request as { attachments: unknown[] }).attachments).toEqual([]);
+    expect(transport.runs[0].options.body?.["attachments"]).toEqual([]);
   });
 
   it("renders user attachments as attachment chips in the transcript", async () => {
     fixture = mount(transport);
-    await fixture.componentInstance.service.send("with a file", [
+    void fixture.componentInstance.service.send("with a file", [
       { id: "attachment:1", name: "notes.txt", mime: "text/plain", size: 3 },
     ]);
+    await flush();
     await fixture.detectChanges();
 
     const attachments = element().querySelectorAll(
@@ -232,6 +362,7 @@ describe("AgentChatComponent", () => {
   it("replaces the empty state once messages exist and shows the typing indicator while running", async () => {
     fixture = mount(transport);
     void fixture.componentInstance.service.send("hello");
+    await flush();
     await fixture.detectChanges();
 
     expect(element().querySelector(".agent-chat__typing")).not.toBeNull();
@@ -243,9 +374,10 @@ describe("AgentChatComponent", () => {
   });
 
   it("renders the error banner when the service carries an error", async () => {
-    transport.send.mockRejectedValue(new Error("backend exploded"));
+    transport.sendMessages.mockRejectedValue(new Error("backend exploded"));
     fixture = mount(transport);
-    await fixture.componentInstance.service.send("hello");
+    void fixture.componentInstance.service.send("hello");
+    await flush();
     await fixture.detectChanges();
 
     const banner = element().querySelector(
@@ -284,6 +416,7 @@ describe("AgentChatComponent", () => {
     ).toBe(false);
 
     void fixture.componentInstance.service.send("typed message");
+    await flush();
     await fixture.detectChanges();
     expect(element().querySelector(".chat-composer__action--send")).toBeNull();
     expect(element().querySelector(".chat-composer__action--stop")).not.toBeNull();
@@ -313,7 +446,7 @@ describe("AgentChatComponent", () => {
       new KeyboardEvent("keydown", { key: "Enter", shiftKey: true, bubbles: true }),
     );
     await flush();
-    expect(transport.send).not.toHaveBeenCalled();
+    expect(transport.sendMessages).not.toHaveBeenCalled();
     expect(fixture.componentInstance.draft()).toBe("first line\nsecond");
 
     textarea.dispatchEvent(
@@ -322,9 +455,8 @@ describe("AgentChatComponent", () => {
     await flush();
     await fixture.detectChanges();
 
-    expect(transport.send).toHaveBeenCalledTimes(1);
-    const [request] = transport.send.mock.calls[0] as unknown[];
-    expect((request as { message: string }).message).toBe("first line\nsecond");
+    expect(transport.sendMessages).toHaveBeenCalledTimes(1);
+    expect(lastUserText(transport.runs[0].options)).toBe("first line\nsecond");
     expect(fixture.componentInstance.draft()).toBe("");
   });
 
@@ -397,13 +529,11 @@ describe("AgentChatComponent", () => {
     await flush();
     await fixture.detectChanges();
 
-    expect(transport.send).toHaveBeenCalledTimes(1);
-    const [request] = transport.send.mock.calls[0] as unknown[];
-    expect(request).toMatchObject({
-      message: "with extras",
-      knowledgeSourceIds: ["kb-1"],
-    });
-    expect((request as { attachments: { name: string }[] }).attachments).toEqual([
+    expect(transport.sendMessages).toHaveBeenCalledTimes(1);
+    const options = transport.runs[0].options;
+    expect(lastUserText(options)).toBe("with extras");
+    expect(options.body).toMatchObject({ knowledgeSourceIds: ["kb-1"] });
+    expect(options.body?.["attachments"]).toEqual([
       expect.objectContaining({ name: "notes.txt" }),
     ]);
   });
@@ -434,8 +564,9 @@ describe("AgentChatComponent", () => {
 
   it("wires the structured object panel to the composed structured-object view", async () => {
     fixture = mount(transport);
-    await fixture.componentInstance.service.send("hello");
-    handlersOf(transport).onEvent(
+    void fixture.componentInstance.service.send("hello");
+    await flush();
+    lastRun(transport).emit(
       envelope(2, GraphExecutionEventType.NODE_OUTPUT, {
         payload: {
           response: "extracted",
@@ -443,6 +574,7 @@ describe("AgentChatComponent", () => {
         },
       }),
     );
+    await flush();
     await fixture.detectChanges();
 
     const panel = element().querySelector(".agent-chat__structured") as HTMLElement;
@@ -504,8 +636,6 @@ describe("AgentChatComponent", () => {
   it("cancels the running roundtrip through the composed stop button", async () => {
     fixture = mount(transport);
     void fixture.componentInstance.service.send("hello");
-    await fixture.detectChanges();
-
     await flush();
     await fixture.detectChanges();
 
@@ -540,9 +670,8 @@ describe("AgentChatComponent", () => {
     await flush();
     await fixture.detectChanges();
 
-    expect(transport.send).toHaveBeenCalledTimes(1);
-    const [request] = transport.send.mock.calls[0] as unknown[];
-    expect((request as { message: string }).message).toBe(
+    expect(transport.sendMessages).toHaveBeenCalledTimes(1);
+    expect(lastUserText(transport.runs[0].options)).toBe(
       "Show me the full roundtrip",
     );
     expect(element().querySelector(".chat-suggested-actions")).toBeNull();
@@ -703,10 +832,25 @@ describe("AgentChatComponent", () => {
     await flush();
     await fixture.detectChanges();
 
-    expect(transport.send).toHaveBeenCalledTimes(2);
-    const [second] = transport.send.mock.calls[1] as unknown[];
-    expect((second as { message: string }).message).toBe("edited message");
-    expect(fixture.componentInstance.messages()).toHaveLength(1);
+    expect(transport.sendMessages).toHaveBeenCalledTimes(2);
+    expect(lastUserText(transport.runs[1].options)).toBe("edited message");
+
+    lastRun(transport).emit(
+      envelope(2, GraphExecutionEventType.NODE_OUTPUT, {
+        payload: { response: "edited answer" },
+      }),
+    );
+    await flush();
+    await fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance
+        .messages()
+        .map((message) => [message.role, message.content]),
+    ).toEqual([
+      ["user", "edited message"],
+      ["assistant", "edited answer"],
+    ]);
   });
 
   it("records votes and deletes messages through the composed action bar", async () => {

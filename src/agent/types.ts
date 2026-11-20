@@ -14,6 +14,7 @@
  * {@link AgentChatTransport} against the same contract.
  */
 import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
+import type { ChatTransport, UIMessage } from "ai";
 import type { Observable } from "rxjs";
 
 /** Role a {@link AgentChatMessageView} plays in the transcript. */
@@ -165,6 +166,15 @@ export interface AgentChatToolPart extends AgentChatMessagePartBase {
   input?: unknown;
   /** Optional tool output rendered as JSON. */
   output?: unknown;
+  /**
+   * @description Optional tool result metadata
+   * @summary Opaque to the transport. A GenUI `render_ui` result uses this to
+   * carry a repaired presentation spec either as the value itself or under
+   * `presentationMeta`; see
+   * `ChatMessageComponent.presentationSpec`. Left generic so other tools can
+   * attach their own metadata without changing this contract.
+   */
+  meta?: unknown;
   /** Optional error message for a failed invocation. */
   error?: string;
 }
@@ -309,6 +319,93 @@ export interface AgentChatRunDescriptor {
   /** SSE events URL returned by `POST /graph/runs`. */
   eventsUrl: string;
 }
+
+/**
+ * Metadata carried on an @ai-sdk {@link UIMessage} for the agent chat.
+ * Decaf state that has no protocol-native carrier (attachments selected in the
+ * composer, knowledge selections, votes, inline edits, actions) travels here.
+ */
+export interface AgentChatUIMessageMetadata {
+  /** Run the message belongs to (assistant messages). */
+  runId?: string;
+  /** Conversation session id. */
+  sessionId?: string;
+  /** Knowledge-base ids the user selected for the message. */
+  knowledgeSourceIds?: string[];
+  /** Attachments the user attached to the message. */
+  attachments?: AgentChatAttachment[];
+  /** ISO timestamp the message was created or received. */
+  createdAt?: string;
+  /** Action names the agent reported alongside its response. */
+  actions?: string[];
+  /** User feedback recorded for the message. */
+  vote?: AgentChatVote | null;
+  /** ISO timestamp of the last inline edit, when the message was edited. */
+  editedAt?: string;
+}
+
+/**
+ * Decaf data-part payloads carried inside the @ai-sdk message stream.
+ * Extended `Record` to satisfy the SDK's `UIDataTypes` constraint.
+ */
+export interface AgentChatUIMessageData extends Record<string, unknown> {
+  /** Structured object (use-object style) extracted from a run. */
+  "structured-object": unknown;
+  /** Error text projected as a transcript error message (no protocol error role). */
+  error: { message: string; name?: string };
+  /** Per-run telemetry snapshot emitted alongside the chunk stream. */
+  telemetry: AgentChatRoundtripTelemetry;
+  /** Run-level approval prompt (decaf side-channel projection). */
+  approval: {
+    runId: string;
+    status: AgentChatApprovalStatus;
+    payload?: unknown;
+    toolName?: string;
+  };
+}
+
+/**
+ * The message envelope the Angular agent chat uses from the transport seam
+ * onward: an @ai-sdk {@link UIMessage} with decaf metadata and data parts.
+ */
+export type AgentChatUIMessage = UIMessage<
+  AgentChatUIMessageMetadata,
+  AgentChatUIMessageData
+>;
+
+/**
+ * Decaf side-channel a transport/fold can push alongside the `UIMessageChunk`
+ * stream. Everything here is deliberately decaf-owned domain state that has no
+ * protocol-native carrier.
+ */
+export interface AgentChatSideChannelHandlers {
+  /** Latest telemetry row for the streaming run. */
+  onTelemetry?(telemetry: AgentChatRoundtripTelemetry): void;
+  /** Latest structured object extracted from a run. */
+  onStructuredObject?(view: AgentChatStructuredObjectView): void;
+  /** Stream/transport error surfaced to the chat. */
+  onError?(error: unknown): void;
+  /** Tri-state backend availability update. */
+  onBackendAvailable?(available: boolean | null): void;
+  /** Demo-only side-channel event (workflow steps, approvals, tool cards, …). */
+  onDemoEvent?(event: AgentChatDemoEvent): void;
+}
+
+/** Optional side-channel surface implemented by transports that feed decaf state. */
+export interface AgentChatSideChannelSource {
+  /** Installs the decaf side-channel handlers (replacing any previous ones). */
+  setSideChannelHandlers(handlers: AgentChatSideChannelHandlers): void;
+}
+
+/**
+ * The SDK transport seam for the agent chat: a `ChatTransport` carrying
+ * {@link AgentChatUIMessage}s, plus the decaf side-channel source. Custom
+ * legacy `AgentChatTransport` implementations are bridged through
+ * {@link AgentChatLegacyChatTransportAdapter}.
+ */
+export interface AgentChatSdkTransport
+  extends ChatTransport<AgentChatUIMessage>,
+    AgentChatSideChannelSource {}
 
 /** Callbacks a transport invokes while streaming a run's envelopes. */
 export interface AgentChatTransportHandlers {

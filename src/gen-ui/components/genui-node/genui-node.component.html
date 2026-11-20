@@ -1,0 +1,784 @@
+@if (visible(node())) {
+  <div
+    class="genui-node"
+    [class.genui-node--gated]="gated(node())"
+    [attr.inert]="gated(node()) ? '' : null"
+    [attr.aria-disabled]="gated(node()) ? 'true' : null"
+    [attr.data-genui-type]="n().type"
+  >
+    @if (gated(node())) {
+      <p class="genui-node__gate">{{ n().disabledReason || t("block.gateReason") }}</p>
+    }
+    @if (withinDepth()) {
+      @switch (n().type) {
+        @case ("text") {
+          <div
+            class="genui-text"
+            [attr.data-size]="n().size ?? 'body'"
+            [attr.data-tone]="n().tone ?? null"
+            [class.genui-text--center]="n().align === 'center' || n().center"
+            [class.genui-text--right]="n().align === 'right'"
+            [class.genui-text--mono]="n().mono"
+          >{{ n().content }}</div>
+        }
+
+        @case ("row") {
+          <div class="genui-row" [class.genui-row--wrap]="n().wrap" [attr.data-justify]="n().justify ?? 'start'">
+            @for (child of children(node()); track $index) {
+              <ngx-decaf-genui-node [node]="child" [state]="state()" [depth]="depth() + 1" />
+            }
+            @if (n().spacer) { <span class="genui-row__spacer"></span> }
+          </div>
+        }
+
+        @case ("col") {
+          <div class="genui-col" [style.gap.px]="n().gap" [style.width.%]="n().width">
+            @for (child of children(node()); track $index) {
+              <ngx-decaf-genui-node [node]="child" [state]="state()" [depth]="depth() + 1" />
+            }
+          </div>
+        }
+
+        @case ("grid") {
+          <div class="genui-grid" [style.grid-template-columns]="'repeat(' + (n().cols ?? 1) + ', minmax(0, 1fr))'">
+            @for (child of children(node()); track $index) {
+              <div class="genui-grid__cell" [style.grid-column]="'span ' + (child.span ?? 1)">
+                <ngx-decaf-genui-node [node]="child" [state]="state()" [depth]="depth() + 1" />
+              </div>
+            }
+          </div>
+        }
+
+        @case ("card") {
+          <section class="genui-card" [attr.data-tone]="n().tone ?? null" [class.genui-card--flat]="n().flat" [style.border-color]="n().accent">
+            @if (n().eyebrow) { <p class="genui-card__eyebrow">{{ n().eyebrow }}</p> }
+            @if (n().title) { <h4 class="genui-card__title">{{ n().title }}</h4> }
+            <div class="genui-card__body">
+              @for (child of children(node()); track $index) {
+                <ngx-decaf-genui-node [node]="child" [state]="state()" [depth]="depth() + 1" />
+              }
+            </div>
+          </section>
+        }
+
+        @case ("callout") {
+          <aside class="genui-callout" [attr.data-tone]="n().tone ?? 'info'" role="note">
+            @if (n().title) { <strong class="genui-callout__title">{{ n().title }}</strong> }
+            <p class="genui-callout__body">{{ n().content }}</p>
+          </aside>
+        }
+
+        @case ("badge") {
+          <span class="genui-badge" [attr.data-tone]="n().tone ?? 'accent'">{{ n().label }}</span>
+        }
+
+        @case ("hero") {
+          <section class="genui-hero" [attr.data-tone]="n().tone ?? 'accent'">
+            @if (n().label) { <span class="genui-hero__label">{{ n().label }}</span> }
+            @if (n().value) { <span class="genui-hero__value">{{ n().value }}</span> }
+            <h3 class="genui-hero__title">{{ n().title }}</h3>
+            @if (n().subtitle) { <p class="genui-hero__subtitle">{{ n().subtitle }}</p> }
+            @if (n().delta) { <span class="genui-hero__delta">{{ n().delta }}</span> }
+            @if (n().spark) {
+              <svg class="genui-spark" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true">
+                <path [attr.d]="sparkArea(n().spark)" fill="currentColor" opacity="0.14"></path>
+                <polyline [attr.points]="sparkPoints(n().spark)" fill="none" stroke="currentColor" stroke-width="1.5"></polyline>
+              </svg>
+            }
+          </section>
+        }
+
+        @case ("stat") {
+          <div class="genui-stat" [class.genui-stat--hero]="n().size === 'hero'">
+            <span class="genui-stat__label">{{ n().label }}</span>
+            <span class="genui-stat__value">{{ n().value }}</span>
+            @if (n().delta) { <span class="genui-stat__delta">{{ n().delta }}</span> }
+            @if (n().spark) {
+              <svg class="genui-spark" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true">
+                <path [attr.d]="sparkArea(n().spark)" fill="currentColor" opacity="0.14"></path>
+                <polyline [attr.points]="sparkPoints(n().spark)" fill="none" stroke="currentColor" stroke-width="1.5"></polyline>
+              </svg>
+            }
+          </div>
+        }
+
+        @case ("progress") {
+          <div class="genui-progress" [class.genui-progress--ring]="n().variant === 'ring'">
+            @if (n().variant === "ring") {
+              <svg viewBox="0 0 36 36" role="img" [attr.aria-label]="n().label ?? 'progress'">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" stroke-width="3" opacity="0.15"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" stroke-width="3"
+                  [attr.stroke-dasharray]="(n().value ?? 0) + ' 100'" stroke-linecap="round"></circle>
+              </svg>
+              <span class="genui-progress__value">{{ n().valueLabel ?? n().value + '%' }}</span>
+            } @else {
+              @if (n().label) { <span class="genui-progress__label">{{ n().label }}</span> }
+              <div class="genui-progress__track" role="progressbar" [attr.aria-valuenow]="n().value" aria-valuemin="0" aria-valuemax="100">
+                <span class="genui-progress__fill" [style.width.%]="n().value"></span>
+                @if (n().target !== undefined) {
+                  <span class="genui-progress__target" [style.left.%]="n().target"></span>
+                }
+              </div>
+              <span class="genui-progress__value">{{ n().valueLabel ?? n().value + '%' }}</span>
+            }
+          </div>
+        }
+
+        @case ("divider") {
+          <div class="genui-divider" role="separator">
+            @if (n().label) { <span class="genui-divider__label">{{ n().label }}</span> }
+          </div>
+        }
+
+        @case ("avatar") {
+          <span class="genui-avatar" [style.background]="n().color ?? null" [attr.aria-label]="n().name">{{ initials(n().name) }}</span>
+        }
+
+        @case ("spacer") {
+          <span class="genui-spacer" aria-hidden="true"></span>
+        }
+
+        @case ("arrow") {
+          <span class="genui-arrow" [attr.data-dir]="n().dir ?? 'down'" [style.--arrow-length]="(n().length ?? 26) + 'px'">
+            <span class="genui-arrow__shaft" aria-hidden="true"></span>
+            @if (n().label) { <span class="genui-arrow__label">{{ n().label }}</span> }
+          </span>
+        }
+
+        @case ("icon") {
+          <span class="genui-icon" [attr.data-tone]="n().tone ?? 'default'" [class.genui-icon--tile]="n().tile"
+            [style.font-size.px]="n().size ?? 20" [attr.role]="n().label ? 'img' : null" [attr.aria-label]="n().label ?? null"
+            [attr.aria-hidden]="n().label ? null : 'true'">{{ iconText(n().name) }}</span>
+        }
+
+        @case ("blocks") {
+          <figure class="genui-blocks">
+            @if (n().title) { <figcaption class="genui-blocks__title">{{ n().title }}</figcaption> }
+            @for (row of blockRows(node()); track $index) {
+              <div class="genui-blocks__row" [attr.data-variant]="row.variant ?? 'fill'">
+                @if (row.label) { <span class="genui-blocks__label">{{ row.label }}</span> }
+                <div class="genui-blocks__cells">
+                  @for (cell of row.cells; track $index) {
+                    <span
+                      class="genui-blocks__cell"
+                      [attr.data-tone]="blockCellTone(cell)"
+                      [style.background]="blockCellColor(cell) ?? row.color"
+                    >
+                      {{ blockCellText(cell) }}
+                      @if (blockCellSub(cell)) { <small>{{ blockCellSub(cell) }}</small> }
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+            @if (n().caption) { <figcaption class="genui-blocks__caption">{{ n().caption }}</figcaption> }
+          </figure>
+        }
+
+        @case ("list") {
+          <ul class="genui-list">
+            @for (item of listItems(node()); track $index) {
+              @if (isNodeItem(item)) {
+                <li><ngx-decaf-genui-node [node]="asNode(item)" [state]="state()" [depth]="depth() + 1" /></li>
+              } @else {
+                <li>{{ listText(item) }}</li>
+              }
+            }
+          </ul>
+        }
+
+        @case ("table") {
+          @if (tableRows(node()).length === 0) {
+            <p class="genui-empty">{{ t("table.empty") }}</p>
+          } @else {
+            @if (n().export) {
+              <div class="genui-table__toolbar">
+                <button type="button" (click)="copy(tableMarkdown(node()), 'md')">
+                  {{ copied() === "md" ? t("copy.copied") : t("table.exportMarkdown") }}
+                </button>
+                <button type="button" (click)="copy(tableCsv(node()), 'csv')">
+                  {{ copied() === "csv" ? t("copy.copied") : t("table.exportCsv") }}
+                </button>
+              </div>
+            }
+            <div class="genui-table__wrap" [class.genui-table__wrap--prose]="n().wrap">
+              <table class="genui-table">
+                <thead>
+                  <tr>
+                    @for (column of n().columns; track $index) {
+                      <th scope="col">{{ column }}</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of tableRows(node()); track $index) {
+                    <tr>
+                      @for (cell of row; track $index) {
+                        <td [ngClass]="tableCellClass(n().types ? n().types[$index] : undefined, cell)">
+                          @switch (n().types ? n().types[$index] : undefined) {
+                            @case ("bar") {
+                              <span class="genui-meter"><span [style.width.%]="cellBar(cell)"></span></span>
+                            }
+                            @case ("ring") {
+                              <span class="genui-ring">{{ cellBar(cell) }}</span>
+                            }
+                            @case ("spark") {
+                              <svg class="genui-spark genui-spark--inline" viewBox="0 0 96 24" preserveAspectRatio="none" aria-hidden="true">
+                                <polyline [attr.points]="cellSpark(cell)" fill="none" stroke="currentColor" stroke-width="1.5"></polyline>
+                              </svg>
+                            }
+                            @case ("index") {
+                              {{ $index + 1 }}
+                            }
+                            @default {
+                              {{ cellText(cell) }}
+                            }
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+                @if (n().total) {
+                  <tfoot>
+                    <tr>
+                      @for (column of n().columns; track $index) {
+                        <td>{{ $index === 0 ? t("table.total") : tableTotal(node(), $index) }}</td>
+                      }
+                    </tr>
+                  </tfoot>
+                }
+              </table>
+            </div>
+          }
+        }
+
+        @case ("chart") {
+          @if (chartData(node()).length === 0) {
+            <p class="genui-empty">{{ t("chart.empty") }}</p>
+          } @else if (n().kind === "donut") {
+            <div class="genui-donut" [style.background]="donutGradient(node())" role="img" [attr.aria-label]="'chart'"></div>
+            <ul class="genui-legend">
+              @for (datum of chartData(node()); track $index) {
+                <li><span class="genui-legend__swatch" [style.background]="datum.color ?? null"></span>{{ datum.label }} — {{ datum.value }}</li>
+              }
+            </ul>
+          } @else if (n().kind === "line") {
+            <svg class="genui-chart" viewBox="0 0 100 40" preserveAspectRatio="none" role="img" [attr.aria-label]="'chart'">
+              <path [attr.d]="linePath(node())" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+            </svg>
+            <ul class="genui-legend">
+              @for (datum of chartData(node()); track $index) {
+                <li>{{ datum.label }} — {{ datum.value }}</li>
+              }
+            </ul>
+          } @else {
+            <ul class="genui-bars" [class.genui-bars--horizontal]="n().horizontal">
+              @for (datum of chartData(node()); track $index) {
+                <li>
+                  <span class="genui-bars__label">{{ datum.label }}</span>
+                  <span class="genui-bars__track">
+                    <span class="genui-bars__fill" [style.width.%]="barWidth(node(), datum.value)" [style.background]="datum.color ?? null"></span>
+                  </span>
+                  <span class="genui-bars__value">{{ datum.value }}</span>
+                </li>
+              }
+            </ul>
+          }
+        }
+
+        @case ("tabs") {
+          <div class="genui-tabs">
+            <div class="genui-tabs__list" role="tablist">
+              @for (tab of n().tabs; track $index) {
+                <button
+                  type="button"
+                  role="tab"
+                  [attr.aria-selected]="tabIndex() === $index"
+                  [class.genui-tabs__tab--active]="tabIndex() === $index"
+                  (click)="selectTab($index)"
+                >{{ tab.label }}</button>
+              }
+            </div>
+            @if (n().tabs[tabIndex()]) {
+              <div class="genui-tabs__panel" role="tabpanel">
+                @for (child of n().tabs[tabIndex()].items; track $index) {
+                  <ngx-decaf-genui-node [node]="child" [state]="state()" [depth]="depth() + 1" />
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @case ("steps") {
+          <ol class="genui-steps">
+            @for (step of n().steps; track $index) {
+              <li [attr.data-state]="stepState($index, n().current)">
+                <span class="genui-steps__dot" aria-hidden="true"></span>
+                <div>
+                  <span class="genui-steps__title">{{ step.title }}</span>
+                  @if (step.desc) { <p class="genui-steps__desc">{{ step.desc }}</p> }
+                </div>
+              </li>
+            }
+          </ol>
+        }
+
+        @case ("keyvalue") {
+          <dl class="genui-keyvalue">
+            @for (pair of n().pairs; track $index) {
+              <div class="genui-keyvalue__row">
+                <dt>{{ pair.key }}</dt>
+                <dd>{{ pair.value }}</dd>
+              </div>
+            }
+          </dl>
+        }
+
+        @case ("timeline") {
+          <ol class="genui-timeline">
+            @for (item of n().items; track $index) {
+              <li>
+                @if (item.time) { <time class="genui-timeline__time">{{ item.time }}</time> }
+                <span class="genui-timeline__title">{{ item.title }}</span>
+                @if (item.desc) { <p class="genui-timeline__desc">{{ item.desc }}</p> }
+              </li>
+            }
+          </ol>
+        }
+
+        @case ("file-tree") {
+          <ul class="genui-tree">
+            @for (item of fileTreeChildren(node()); track $index) {
+              <li class="genui-tree__item" [attr.data-type]="item.type ?? 'file'">
+                <span class="genui-tree__name">{{ item.name }}</span>
+                @if (item.children && item.children.length) {
+                  <ul class="genui-tree__children">
+                    @for (child of item.children; track $index) {
+                      @if (isNodeItem(child)) {
+                        <li><ngx-decaf-genui-node [node]="asNode(child)" [state]="state()" [depth]="depth() + 1" /></li>
+                      }
+                    }
+                  </ul>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        @case ("diff") {
+          <div class="genui-diff">
+            @for (diff of n().diffs; track $index) {
+              <div class="genui-diff__file">
+                <span class="genui-diff__path">{{ diff.path }}</span>
+                @if (diff.oldText !== null) { <pre class="genui-diff__old">{{ diff.oldText }}</pre> }
+                <pre class="genui-diff__new">{{ diff.newText }}</pre>
+              </div>
+            }
+          </div>
+        }
+
+        @case ("json") {
+          <pre class="genui-json">{{ stringify(n().value) }}</pre>
+        }
+
+        @case ("code") {
+          <pre class="genui-code" [attr.data-lang]="n().lang ?? null"><code>{{ n().code }}</code></pre>
+        }
+
+        @case ("copy") {
+          <div class="genui-copy">
+            <button type="button" (click)="copy(n().text, 'copy')">
+              {{ copied() === "copy" ? t("copy.copied") : (n().label ?? t("copy.button")) }}
+            </button>
+            @if (n().expandable) {
+              <pre class="genui-copy__preview">{{ n().text }}</pre>
+            }
+          </div>
+        }
+
+        @case ("accordion") {
+          <div class="genui-accordion">
+            @for (item of n().items; track $index) {
+              <details class="genui-accordion__item">
+                <summary>{{ item.title }}</summary>
+                @for (child of item.items; track $index) {
+                  <ngx-decaf-genui-node [node]="child" [state]="state()" [depth]="depth() + 1" />
+                }
+              </details>
+            }
+          </div>
+        }
+
+        @case ("breadcrumb") {
+          <nav class="genui-breadcrumb" aria-label="breadcrumb">
+            @for (item of n().items; track $index) {
+              <span class="genui-breadcrumb__item">{{ item }}</span>
+              @if ($index < n().items.length - 1) { <span aria-hidden="true">/</span> }
+            }
+          </nav>
+        }
+
+        @case ("quiz") {
+          <div class="genui-quiz" [attr.data-state]="grade() ? (grade()!.correct ? 'correct' : 'incorrect') : null">
+            <p class="genui-quiz__question">{{ n().question }}</p>
+            <ul class="genui-quiz__options">
+              @for (option of n().options; track $index) {
+                <li>
+                  <button
+                    type="button"
+                    [class.genui-quiz__option--selected]="quizChoice() === $index"
+                    [class.genui-quiz__option--correct]="grade() !== null && option.correct"
+                    [class.genui-quiz__option--wrong]="grade() !== null && quizChoice() === $index && !option.correct"
+                    [disabled]="grade() !== null"
+                    (click)="answerOption(option, $index)"
+                  >{{ option.label }}</button>
+                </li>
+              }
+            </ul>
+            @if (quizChoice() !== null && grade() === null) {
+              <button type="button" class="genui-quiz__submit" (click)="gradeQuiz()">{{ t("form.submit") }}</button>
+            }
+            @if (grade(); as result) {
+              <p class="genui-quiz__result" role="status">{{ result.correct ? t("quiz.correct") : t("quiz.incorrect") }}</p>
+              @if (n().explanation) { <p class="genui-quiz__explanation">{{ n().explanation }}</p> }
+              <button type="button" (click)="resetPaper(node())">{{ t("quiz.reset") }}</button>
+            }
+          </div>
+        }
+
+        @case ("radio") {
+          <fieldset class="genui-radio">
+            @if (n().label) { <legend>{{ n().label }}</legend> }
+            @for (option of n().options; track $index) {
+              <label>
+                <input type="radio" [name]="n().group ?? 'genui-radio-' + depth()"
+                  [checked]="n().group ? answerValue(n().group, '') === option : isLocalRadio(option, $index)"
+                  (change)="n().group ? selectRadio(n().group, option, $index, n().action) : chooseLocal(option, $index, n().action)" />
+                <span>{{ option }}</span>
+              </label>
+            }
+          </fieldset>
+        }
+
+        @case ("checkbox") {
+          <label class="genui-checkbox">
+            <input type="checkbox" [checked]="n().checked" (change)="onToggle($event, n().label, n().action, n().group)" />
+            <span>{{ n().label }}</span>
+          </label>
+        }
+
+        @case ("switch") {
+          <label class="genui-switch">
+            <input type="checkbox" role="switch" [checked]="n().checked" (change)="fire(n().action, { checked: ($any($event.target).checked) })" />
+            <span>{{ n().label }}</span>
+          </label>
+        }
+
+        @case ("choices") {
+          <div class="genui-choices">
+            @if (n().title) { <h4 class="genui-choices__title">{{ n().title }}</h4> }
+            @if (n().prompt) { <p class="genui-choices__prompt">{{ n().prompt }}</p> }
+            <ul class="genui-choices__list">
+              @for (item of n().items; track $index) {
+                <li>
+                  <button
+                    type="button"
+                    [class.genui-choices__item--selected]="isChosen(item.label)"
+                    [class.genui-choices__item--recommended]="item.recommended"
+                    [disabled]="item.disabled"
+                    (click)="toggleChoice(item.label, item.disabled, n().max)"
+                  >
+                    <span class="genui-choices__label">{{ item.label }}</span>
+                    @if (item.hint) { <span class="genui-choices__hint">{{ item.hint }}</span> }
+                    @if (item.reason) { <span class="genui-choices__reason">{{ item.reason }}</span> }
+                    @if (item.meta) { <span class="genui-choices__meta">{{ item.meta }}</span> }
+                  </button>
+                </li>
+              }
+            </ul>
+            @if (n().submit) {
+              <button type="button" class="genui-choices__submit" (click)="submittedChoices()">
+                {{ n().submit }} ({{ selectedChoices().length }} {{ t("choices.selected") }})
+              </button>
+            }
+          </div>
+        }
+
+        @case ("submit") {
+          <div class="genui-submit">
+            <span class="genui-submit__progress">
+              {{ t("form.answered", { answered: answeredCount(node()), total: n().groups ? n().groups.length : answeredCount(node()) }) }}
+            </span>
+            <button type="button" [disabled]="!canSubmit(node()) || state().locked()" (click)="submit(node())">
+              {{ n().label ?? t("form.submit") }}
+            </button>
+            @if (state().locked()) {
+              <button type="button" class="genui-submit__reset" (click)="resetPaper(node())">{{ t("quiz.reset") }}</button>
+            }
+          </div>
+        }
+
+        @case ("input") {
+          <label class="genui-field">
+            @if (n().label) { <span class="genui-field__label">{{ n().label }}</span> }
+            <input
+              [type]="n().inputType ?? 'text'"
+              [placeholder]="n().placeholder ?? ''"
+              [value]="fieldValue(n().id) || (n().value ?? '')"
+              [attr.autocomplete]="n().inputType === 'password' ? 'new-password' : null"
+              (input)="onText($event, n().id)"
+              (change)="onText($event, n().id, n().action)"
+            />
+          </label>
+        }
+
+        @case ("textarea") {
+          <label class="genui-field">
+            @if (n().label) { <span class="genui-field__label">{{ n().label }}</span> }
+            <textarea
+              [rows]="n().rows ?? 3"
+              [placeholder]="n().placeholder ?? ''"
+              [value]="fieldValue(n().id) || (n().value ?? '')"
+              (input)="onText($event, n().id)"
+              (blur)="onText($event, n().id, n().action)"
+            ></textarea>
+          </label>
+        }
+
+        @case ("editor") {
+          <label class="genui-field">
+            @if (n().label) { <span class="genui-field__label">{{ n().label }}</span> }
+            <textarea
+              class="genui-editor"
+              [rows]="n().rows ?? 8"
+              [placeholder]="n().placeholder ?? ''"
+              [value]="fieldValue(n().id) || (n().value ?? '')"
+              (input)="onText($event, n().id)"
+            ></textarea>
+          </label>
+        }
+
+        @case ("slider") {
+          <label class="genui-field genui-field--slider">
+            @if (n().label) { <span class="genui-field__label">{{ n().label }}</span> }
+            <input
+              type="range"
+              [min]="n().min ?? 0"
+              [max]="n().max ?? 100"
+              [step]="n().step ?? 1"
+              [value]="fieldValue(n().id) || (n().value ?? n().min ?? 0)"
+              (input)="onNumber($event, n().id)"
+              (change)="onNumber($event, n().id, n().action)"
+            />
+            <output class="genui-field__output">{{ fieldValue(n().id) || (n().value ?? n().min ?? 0) }}</output>
+          </label>
+        }
+
+        @case ("select") {
+          <label class="genui-field">
+            @if (n().label) { <span class="genui-field__label">{{ n().label }}</span> }
+            <select [value]="fieldValue(n().id)" (change)="onSelect($event, n().id, n().action)">
+              <option value="">—</option>
+              @for (option of n().options; track $index) {
+                <option [value]="option" [selected]="fieldValue(n().id) === option || (fieldValue(n().id) === '' && n().selected === $index)">{{ option }}</option>
+              }
+            </select>
+          </label>
+        }
+
+        @case ("segmented-control") {
+          <div class="genui-segmented" role="group" [attr.aria-label]="n().label ?? null">
+            @for (option of n().options; track $index) {
+              <button
+                type="button"
+                [class.genui-segmented__option--active]="(fieldValue(n().id) || n().value) === option"
+                (click)="onSegmented(n().id, option, n().action)"
+              >{{ option }}</button>
+            }
+          </div>
+        }
+
+        @case ("date-picker") {
+          <div class="genui-field">
+            @if (n().label) { <span class="genui-field__label">{{ n().label }}</span> }
+            @if (n().mode === "range") {
+              <span class="genui-field__range">
+                <input type="date" [attr.aria-label]="n().label ?? 'start date'" [value]="fieldValue((n().id ?? 'date') + '.start')" [min]="n().min ?? ''" [max]="n().max ?? ''"
+                  (change)="onText($event, (n().id ?? 'date') + '.start')" />
+                <input type="date" [attr.aria-label]="n().label ?? 'end date'" [value]="fieldValue((n().id ?? 'date') + '.end')" [min]="n().min ?? ''" [max]="n().max ?? ''"
+                  (change)="onText($event, (n().id ?? 'date') + '.end')" />
+              </span>
+            } @else {
+              <input type="date" [attr.aria-label]="n().label ?? 'date'" [value]="fieldValue(n().id) || (n().value ?? '')" [min]="n().min ?? ''" [max]="n().max ?? ''"
+                (change)="onText($event, n().id)" />
+            }
+          </div>
+        }
+
+        @case ("button") {
+          <button
+            type="button"
+            class="genui-button"
+            [attr.data-tone]="n().tone ?? 'primary'"
+            [class.genui-button--full]="n().full"
+            [class.genui-button--small]="n().small"
+            (click)="fire(n().action, { label: n().label })"
+          >{{ n().label }}</button>
+        }
+
+        @case ("link") {
+          @if (href(n().href); as target) {
+            <a class="genui-link" [href]="target" target="_blank" rel="noopener noreferrer" (click)="onLink($event, n().href)">{{ n().label }}</a>
+          } @else {
+            <span class="genui-link genui-link--plain">{{ n().label }}</span>
+          }
+        }
+
+        @case ("image") {
+          @if (safeUrl(n().src); as src) {
+            <figure class="genui-image">
+              @if (n().alt) { <figcaption class="genui-image__alt">{{ n().alt }}</figcaption> }
+              <img [src]="src" [alt]="n().alt ?? ''" loading="lazy" />
+              @if (n().caption) { <figcaption class="genui-image__caption">{{ n().caption }}</figcaption> }
+            </figure>
+          } @else {
+            <p class="genui-empty">{{ t("image.failed") }}</p>
+          }
+        }
+
+        @case ("image-group") {
+          <div class="genui-image-group">
+            @if (n().title) { <h4>{{ n().title }}</h4> }
+            @for (item of n().items; track $index) {
+              @if (safeUrl(item.src); as src) {
+                <figure class="genui-image">
+                  <img [src]="src" [alt]="item.alt ?? ''" loading="lazy" />
+                  @if (item.caption) { <figcaption class="genui-image__caption">{{ item.caption }}</figcaption> }
+                </figure>
+              }
+            }
+          </div>
+        }
+
+        @case ("compare") {
+          <div class="genui-compare" [attr.data-mode]="n().mode ?? 'side'" [style.--compare-height]="(n().height ?? 260) + 'px'">
+            @if (n().title) { <h4>{{ n().title }}</h4> }
+            @for (panel of [n().before, n().after]; track $index) {
+              @if (safeUrl(panel.src); as src) {
+                <figure class="genui-compare__panel">
+                  @if (panel.label) { <span class="genui-compare__chip">{{ panel.label }}</span> }
+                  <img [src]="src" [alt]="panel.alt ?? ''" loading="lazy" />
+                  @if (panel.caption) { <figcaption>{{ panel.caption }}</figcaption> }
+                </figure>
+              }
+            }
+          </div>
+        }
+
+        @case ("audio") {
+          @if (safeUrl(n().src); as src) {
+            <figure class="genui-media">
+              <figcaption>{{ n().alt ?? t("audio.label") }}</figcaption>
+              <audio [src]="src" [loop]="n().loop" [attr.aria-label]="n().alt ?? t('audio.label')" controls></audio>
+            </figure>
+          } @else {
+            <p class="genui-empty">{{ t("media.failed") }}</p>
+          }
+        }
+
+        @case ("video") {
+          @if (safeUrl(n().src); as src) {
+            <figure class="genui-media">
+              <video [src]="src" [poster]="safeUrl(n().poster) ?? ''" [loop]="n().loop" [muted]="n().muted" [attr.aria-label]="n().alt ?? t('video.label')" controls></video>
+              @if (n().alt) { <figcaption>{{ n().alt }}</figcaption> }
+            </figure>
+          } @else {
+            <p class="genui-empty">{{ t("media.failed") }}</p>
+          }
+        }
+
+        @case ("carousel") {
+          <div class="genui-carousel">
+            @if (n().title) { <h4>{{ n().title }}</h4> }
+            <div class="genui-carousel__track">
+              @for (child of children(node()); track $index) {
+                <div class="genui-carousel__slide" [style.min-width.px]="n().itemWidth ?? 240">
+                  <ngx-decaf-genui-node [node]="child" [state]="state()" [depth]="depth() + 1" />
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @case ("entity-card") {
+          <article class="genui-entity">
+            @if (safeUrl(n().image); as src) {
+              <img class="genui-entity__image" [src]="src" [alt]="n().imageAlt ?? n().name" loading="lazy" />
+            }
+            <div class="genui-entity__body">
+              <h4 class="genui-entity__name">{{ n().name }}</h4>
+              @if (n().description) { <p class="genui-entity__desc">{{ n().description }}</p> }
+              @if (n().metadata) {
+                <dl class="genui-keyvalue">
+                  @for (entry of n().metadata; track $index) {
+                    <div class="genui-keyvalue__row"><dt>{{ entry.label }}</dt><dd>{{ entry.value }}</dd></div>
+                  }
+                </dl>
+              }
+              @if (n().href) {
+                <a class="genui-link" [href]="href(n().href) ?? '#'" target="_blank" rel="noopener noreferrer">{{ n().sourceLabel ?? t("entityCard.source") }}</a>
+              }
+              @if (n().actions) {
+                <div class="genui-entity__actions">
+                  @for (action of n().actions; track $index) {
+                    <button type="button" class="genui-button" [attr.data-tone]="action.tone ?? 'primary'" (click)="fire(action.action, { label: action.label })">{{ action.label }}</button>
+                  }
+                </div>
+              }
+            </div>
+          </article>
+        }
+
+        @case ("popover") {
+          <details class="genui-popover">
+            <summary>{{ n().label }}</summary>
+            <p>{{ n().content }}</p>
+          </details>
+        }
+
+        @case ("svg") {
+          <ngx-decaf-genui-svg [code]="n().code" [title]="n().title ?? null" [height]="n().height ?? null" />
+        }
+
+        @case ("mermaid") {
+          <ngx-decaf-genui-mermaid [code]="n().code" />
+        }
+
+        @case ("plot") {
+          <ngx-decaf-genui-plot [node]="node()" />
+        }
+
+        @case ("echart") {
+          <ngx-decaf-genui-echart [node]="node()" />
+        }
+
+        @case ("scene3d") {
+          <ngx-decaf-genui-scene3d [node]="node()" />
+        }
+
+        @case ("map") {
+          <ngx-decaf-genui-map [node]="node()" [state]="state()" />
+        }
+
+        @case ("diagram") {
+          <ngx-decaf-genui-diagram [node]="node()" />
+        }
+
+        @default {
+          <p class="genui-fallback">{{ t("block.fallback", { type: n().type }) }}</p>
+        }
+      }
+    }
+  </div>
+}

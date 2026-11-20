@@ -1,0 +1,19 @@
+@if (provenance(); as current) {
+  <div class="genui-provenance" role="status" [attr.data-status]="current.status" [attr.aria-label]="title">
+    <span class="genui-provenance__dot" aria-hidden="true"></span>
+    <span class="genui-provenance__label">{{ actionLabel }}:</span>
+    <code class="genui-provenance__name">{{ current.name }}</code>
+    <span class="genui-provenance__status">{{ statusLabel() }}</span>
+    <details class="genui-provenance__details">
+      <summary>{{ payloadLabel }}</summary>
+      @if (details()) {
+        <pre class="genui-provenance__json">{{ details() }}</pre>
+      } @else {
+        <span class="genui-provenance__empty">{{ emptyLabel }}</span>
+      }
+    </details>
+    @if (summary()) {
+      <code class="genui-provenance__summary" aria-hidden="true">{{ summary() }}</code>
+    }
+  </div>
+}

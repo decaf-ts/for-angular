@@ -1,0 +1,24 @@
+<section
+  class="genui-block"
+  [attr.data-genui-block]="state.context().blockId"
+  [attr.data-genui-spec]="state.context().specId"
+>
+  @if (spec().title) {
+    <header class="genui-block__header">
+      <span class="genui-block__badge">{{ t("panel.badge") }}</span>
+      <h3 class="genui-block__title">{{ spec().title }}</h3>
+    </header>
+  }
+
+  @if (spec().panel) {
+    <p class="genui-block__panel-hint">{{ t("block.panelFallback") }}</p>
+  } @else {
+    <div class="genui-block__items" [style.gap.px]="spec().gap ?? 16">
+      @for (item of spec().items; track $index) {
+        <ngx-decaf-genui-node [node]="item" [state]="state" [depth]="0" />
+      }
+    </div>
+  }
+
+  <ngx-decaf-genui-action-provenance />
+</section>

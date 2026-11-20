@@ -77,7 +77,7 @@ const config: Config = {
   },
 
   // Critical for Ionic/Stencil modules
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons|@decaf-ts|@storybook|storybook)'],
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic/core|@stencil|@ionic/angular|ionicons|@decaf-ts|@storybook|storybook|@ai-sdk|ai/|zod/|@workflow/|eventsource-parser/)'],
 
   // Other settings
   verbose: true,

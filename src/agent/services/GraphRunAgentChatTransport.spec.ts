@@ -8,10 +8,14 @@ import {
 } from "@decaf-ts/for-angular/diagrams";
 import { GRAPH_RUN_EVENT_SOURCE } from "@decaf-ts/for-angular/diagrams";
 import { GraphRunAgentChatTransport } from "./GraphRunAgentChatTransport";
+import type { UIMessageChunk } from "ai";
 import type {
   AgentChatRunDescriptor,
+  AgentChatSdkTransport,
   AgentChatSendRequest,
+  AgentChatSideChannelHandlers,
   AgentChatTransportHandlers,
+  AgentChatUIMessage,
 } from "../types";
 
 const BACKEND_URL = "http://backend.test";
@@ -128,9 +132,47 @@ function recordingHandlers(): AgentChatTransportHandlers & {
   };
 }
 
-async function flushMicrotasks(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
+async function flushMicrotasks(ticks = 40): Promise<void> {
+  for (let index = 0; index < ticks; index += 1) {
+    await Promise.resolve();
+  }
+}
+
+async function readAll(
+  stream: ReadableStream<UIMessageChunk>,
+): Promise<UIMessageChunk[]> {
+  const reader = stream.getReader();
+  const chunks: UIMessageChunk[] = [];
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) return chunks;
+    chunks.push(value);
+  }
+}
+
+function chunkTypes(chunks: UIMessageChunk[]): string[] {
+  return chunks.map((chunk) => chunk.type);
+}
+
+function userMessage(text = "hello"): AgentChatUIMessage {
+  return {
+    id: "user-1",
+    role: "user",
+    parts: [{ type: "text", text }],
+  } as AgentChatUIMessage;
+}
+
+function sdkSendOptions(
+  body: Record<string, unknown>,
+  sideChannel?: AgentChatSideChannelHandlers,
+): Parameters<AgentChatSdkTransport["sendMessages"]>[0] {
+  return {
+    chatId: "chat-1",
+    messages: [userMessage()],
+    body,
+    metadata: sideChannel ? { sideChannel } : undefined,
+    abortSignal: new AbortController().signal,
+  } as never;
 }
 
 describe("GraphRunAgentChatTransport", () => {
@@ -400,6 +442,228 @@ describe("GraphRunAgentChatTransport", () => {
         `${BACKEND_URL}/graph/runs/${RUN_ID}`,
         expect.objectContaining({ method: "DELETE", credentials: "include" }),
       );
+    });
+  });
+
+  describe("sdk ChatTransport seam", () => {
+    it("declares complete reconnect replays as replay resets", () => {
+      expect(mount().resumeStreamIsReplay).toBe(true);
+    });
+
+    it("sendMessages posts the run and streams start, text and finish chunks", async () => {
+      const fetchMock = routedFetch([
+        (url, init) =>
+          url === `${BACKEND_URL}/graph/runs` && init?.method === "POST"
+            ? httpResponse(CREATED, 202)
+            : null,
+      ]);
+      globalThis.fetch = fetchMock as never as typeof globalThis.fetch;
+      const sideChannel: AgentChatSideChannelHandlers = {
+        onTelemetry: jest.fn(),
+        onBackendAvailable: jest.fn(),
+        onStructuredObject: jest.fn(),
+        onError: jest.fn(),
+      };
+
+      const transport = mount();
+      const stream = await transport.sendMessages(
+        sdkSendOptions(
+          {
+            workflowId: WORKFLOW_ID,
+            sessionId: "session-1",
+            userId: "user-1",
+            attachments: [],
+            knowledgeSourceIds: [],
+          },
+          sideChannel,
+        ),
+      );
+      const reading = readAll(stream);
+      await flushMicrotasks();
+
+      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+      expect(JSON.parse(String(init.body))).toMatchObject({
+        workflowId: WORKFLOW_ID,
+        inputs: {
+          message: "hello",
+          sessionId: "session-1",
+          userId: "user-1",
+        },
+      });
+      expect(sideChannel.onBackendAvailable).toHaveBeenCalledWith(true);
+
+      const source = StubEventSource.instances[0];
+      source.emit(JSON.stringify(envelope(1, GraphExecutionEventType.WORKFLOW_STARTED)));
+      source.emit(
+        JSON.stringify(
+          envelope(2, GraphExecutionEventType.NODE_OUTPUT, {
+            payload: { response: "hello there" },
+          }),
+        ),
+      );
+      source.emit(
+        JSON.stringify(envelope(3, GraphExecutionEventType.WORKFLOW_COMPLETED)),
+      );
+
+      const chunks = await reading;
+      expect(chunkTypes(chunks)).toEqual([
+        "start",
+        "start-step",
+        "text-start",
+        "text-delta",
+        "text-end",
+        "finish",
+      ]);
+      expect(chunks[0]).toMatchObject({
+        type: "start",
+        messageId: `${RUN_ID}:assistant`,
+        messageMetadata: { runId: RUN_ID },
+      });
+      expect(chunks[3]).toMatchObject({
+        type: "text-delta",
+        delta: "hello there",
+      });
+      expect(chunks.at(-1)).toMatchObject({
+        type: "finish",
+        finishReason: "stop",
+      });
+      expect(sideChannel.onTelemetry).toHaveBeenCalledWith(
+        expect.objectContaining({ runId: RUN_ID }),
+      );
+    });
+
+    it("reconnectToStream returns null without a descriptor and replays a run with one", async () => {
+      const transport = mount();
+
+      expect(
+        await transport.reconnectToStream({
+          chatId: "chat-1",
+          body: {},
+        } as never),
+      ).toBeNull();
+
+      const sideChannel: AgentChatSideChannelHandlers = {
+        onTelemetry: jest.fn(),
+        onBackendAvailable: jest.fn(),
+      };
+      const descriptor: AgentChatRunDescriptor = {
+        runId: RUN_ID,
+        eventsUrl: EVENTS_URL,
+      };
+      const stream = await transport.reconnectToStream({
+        chatId: "chat-1",
+        body: { descriptor, sessionId: "session-1" },
+        metadata: { sideChannel },
+      } as never);
+      expect(stream).not.toBeNull();
+
+      const reading = readAll(stream!);
+      await flushMicrotasks();
+      const source = StubEventSource.instances[0];
+      expect(source.url).toBe(`${BACKEND_URL}${EVENTS_URL}?afterSequence=0`);
+      source.emit(JSON.stringify(envelope(1, GraphExecutionEventType.WORKFLOW_STARTED)));
+      source.emit(
+        JSON.stringify(
+          envelope(2, GraphExecutionEventType.NODE_OUTPUT, {
+            payload: { response: "replayed" },
+          }),
+        ),
+      );
+      source.emit(
+        JSON.stringify(envelope(3, GraphExecutionEventType.WORKFLOW_COMPLETED)),
+      );
+
+      const chunks = await reading;
+      expect(chunkTypes(chunks)).toEqual([
+        "start",
+        "start-step",
+        "text-start",
+        "text-delta",
+        "text-end",
+        "finish",
+      ]);
+      expect(sideChannel.onTelemetry).toHaveBeenCalledWith(
+        expect.objectContaining({ runId: RUN_ID, replayed: true }),
+      );
+    });
+
+    it("aborts the stream by cancelling the run and disconnecting the event client", async () => {
+      const fetchMock = routedFetch([
+        (url, init) =>
+          url === `${BACKEND_URL}/graph/runs` && init?.method === "POST"
+            ? httpResponse(CREATED, 202)
+            : null,
+        (url, init) =>
+          url === `${BACKEND_URL}/graph/runs/${RUN_ID}` && init?.method === "DELETE"
+            ? httpResponse({
+                runId: RUN_ID,
+                workflowId: WORKFLOW_ID,
+                status: "cancelled",
+              })
+            : null,
+      ]);
+      globalThis.fetch = fetchMock as never as typeof globalThis.fetch;
+
+      const controller = new AbortController();
+      const transport = mount();
+      const stream = await transport.sendMessages({
+        chatId: "chat-1",
+        messages: [userMessage()],
+        body: { sessionId: "session-1" },
+        abortSignal: controller.signal,
+      } as never);
+      const reading = readAll(stream);
+      await flushMicrotasks();
+      const source = StubEventSource.instances[0];
+
+      controller.abort();
+      const chunks = await reading;
+      await flushMicrotasks();
+
+      expect(chunkTypes(chunks)).toEqual([
+        "start",
+        "start-step",
+        "finish",
+      ]);
+      expect(chunks.at(-1)).toMatchObject({
+        type: "finish",
+        finishReason: "other",
+      });
+      expect(source.closeSpy).toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledWith(
+        `${BACKEND_URL}/graph/runs/${RUN_ID}`,
+        expect.objectContaining({ method: "DELETE" }),
+      );
+    });
+
+    it("dedupes a terminal envelope delivered through onEvent and onTerminal", async () => {
+      globalThis.fetch = routedFetch([
+        (url, init) =>
+          url === `${BACKEND_URL}/graph/runs` && init?.method === "POST"
+            ? httpResponse(CREATED, 202)
+            : null,
+      ]) as never as typeof globalThis.fetch;
+
+      const transport = mount();
+      const stream = await transport.sendMessages(
+        sdkSendOptions({ sessionId: "session-1" }),
+      );
+      const reading = readAll(stream);
+      await flushMicrotasks();
+      const source = StubEventSource.instances[0];
+
+      source.emit(
+        JSON.stringify(
+          envelope(1, GraphExecutionEventType.WORKFLOW_FAILED, {
+            error: { name: "Boom", message: "kaboom" },
+          }),
+        ),
+      );
+
+      const chunks = await reading;
+      expect(chunks.filter((chunk) => chunk.type === "finish")).toHaveLength(1);
+      expect(chunks.filter((chunk) => chunk.type === "data-error")).toHaveLength(1);
+      expect(source.closeSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

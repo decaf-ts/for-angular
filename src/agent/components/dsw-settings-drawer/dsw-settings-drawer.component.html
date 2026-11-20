@@ -1,0 +1,44 @@
+@if (open()) {
+  @if (variant() === "drawer") {
+    <div class="dsw-settings-drawer__scrim" aria-hidden="true" (click)="closeDrawer()"></div>
+  }
+
+  <aside
+    class="dsw-settings-drawer"
+    [class.dsw-settings-drawer--panel]="variant() === 'panel'"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="titleKey() | translateFallback: titleFallback()"
+  >
+    <header class="dsw-settings-drawer__header">
+      <h2 class="dsw-settings-drawer__title">
+        {{ titleKey() | translateFallback: titleFallback() }}
+      </h2>
+      <button
+        type="button"
+        #closeButton
+        class="dsw-settings-drawer__close"
+        [attr.aria-label]="closeLabelKey() | translateFallback: closeLabelFallback()"
+        [attr.title]="closeLabelKey() | translateFallback: closeLabelFallback()"
+        (click)="closeDrawer()"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </header>
+
+    <div class="dsw-settings-drawer__body">
+      @if (!hasModels()) {
+        <p class="dsw-settings-drawer__empty" role="status">
+          {{ emptyKey() | translateFallback: emptyFallback() }}
+        </p>
+      } @else {
+        @for (model of renderables(); track $index) {
+          <section class="dsw-settings-drawer__card">
+            <ngx-decaf-model-renderer [model]="model" />
+          </section>
+        }
+      }
+      <ng-content />
+    </div>
+  </aside>
+}

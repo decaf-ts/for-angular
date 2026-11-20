@@ -75,7 +75,7 @@ const FEATURE_SPECIFIERS: Record<string, string[]> = {
     '@codemirror/view',
     'codemirror',
   ],
-  './agent': ['@decaf-ts/as-graph/shared'],
+  './agent': ['@decaf-ts/as-graph/shared', '@ai-sdk/angular'],
   './cron': ['cronstrue', 'cronstrue/i18n'],
   './diagrams': ['@decaf-ts/as-graph/shared', 'ng-diagram'],
   './gantt': ['@worktile/gantt', 'html2canvas'],

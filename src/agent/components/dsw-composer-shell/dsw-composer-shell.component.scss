@@ -1,0 +1,164 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.dsw-composer-shell {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 24px 4px;
+}
+
+.dsw-composer-shell__notice {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 0 6px;
+  padding: 4px 8px;
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.dsw-composer-shell__dock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 100%;
+  padding-top: 4px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.dsw-composer-shell__card {
+  --gx-border-soft: var(--dsw-alias-border-l3);
+  --gx-surface: transparent;
+  --gx-surface-wash: transparent;
+  --gx-teal-focus: var(--dsw-alias-state-business-primary);
+  --gx-teal-focus-strong: var(--dsw-alias-state-business-primary);
+  --gx-teal-fg: var(--dsw-alias-label-primary);
+  --gx-teal-strong: var(--dsw-alias-button-primary-hover);
+  --gx-text-strong: var(--dsw-alias-label-primary);
+  --gx-text-muted: var(--dsw-alias-label-tertiary);
+  --gx-danger-fg: var(--dsw-alias-state-error-primary);
+  --gx-danger-wash: var(--dsw-alias-interactive-bg-hover-danger);
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 760px;
+  padding-top: 8px;
+  border: 0;
+  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-panel);
+  background: var(--dsw-alias-bg-layer-1);
+  box-shadow: var(--dsw-elevation-soft);
+}
+
+.dsw-composer-shell__accessory {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 0;
+}
+
+.dsw-composer-shell__editor {
+  min-width: 0;
+}
+
+.dsw-composer-shell__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px 12px;
+}
+
+.dsw-composer-shell__tools-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.dsw-composer-shell__permissions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  padding: 4px 10px;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.dsw-composer-shell__permissions--active {
+  border-color: var(--dsw-alias-state-business-primary);
+  background: var(--dsw-alias-state-business-tertiary);
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.dsw-composer-shell__permissions:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline-offset: 1px;
+}
+
+.dsw-composer-shell__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 760px;
+  padding-top: 4px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.dsw-composer-shell__editor ::ng-deep .chat-composer {
+  box-sizing: border-box;
+  gap: 8px;
+  padding: 8px 16px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dsw-composer-shell__editor ::ng-deep .chat-composer:focus-within {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.dsw-composer-shell__editor ::ng-deep .chat-composer__action--send {
+  background: var(--dsw-alias-brand-primary);
+  color: var(--dsw-alias-label-primary-foreground);
+}
+
+.dsw-composer-shell__editor ::ng-deep .chat-composer__action--send:hover:not(:disabled) {
+  background: var(--dsw-alias-button-primary-hover);
+  color: var(--dsw-alias-label-primary-foreground);
+}
+
+@media (hover: hover) {
+  .dsw-composer-shell__permissions:hover {
+    background: var(--dsw-alias-interactive-bg-hover);
+    color: var(--dsw-alias-label-primary);
+  }
+
+  .dsw-composer-shell__permissions--active:hover {
+    background: var(--dsw-alias-state-business-tertiary);
+    color: var(--dsw-alias-state-business-primary);
+  }
+}

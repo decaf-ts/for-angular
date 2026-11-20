@@ -1,3 +1,5 @@
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -82,7 +84,10 @@ function articleOf(fixture: ComponentFixture<ChatMessageComponent>): HTMLElement
 
 describe("ChatMessageComponent", () => {
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [ChatMessageComponent] });
+    TestBed.configureTestingModule({
+      imports: [ChatMessageComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
   });
 
   afterEach(() => {
@@ -331,5 +336,99 @@ describe("ChatMessageComponent", () => {
     expect(
       withoutAvatar.nativeElement.querySelector("ngx-decaf-chat-icon"),
     ).toBeNull();
+  });
+
+  describe("GenUI agent seam", () => {
+    const CALLOUT = {
+      items: [
+        {
+          type: "callout",
+          title: "Heads up",
+          content: "Pipeline is green.",
+        },
+      ],
+    };
+
+    it("renders a dsh-ui fence in a text part through ngx-decaf-genui-fence", () => {
+      const fence = ["```dsh-ui", JSON.stringify(CALLOUT), "```"].join("\n");
+      const fixture = mount({
+        sessionId: "session-genui",
+        parts: [
+          {
+            id: "p-genui",
+            kind: "text",
+            text: `Status:\n${fence}`,
+          },
+        ],
+      });
+      const html = element(fixture);
+
+      const fenceElement = html.querySelector(".chat-message__text ngx-decaf-genui-fence");
+      expect(fenceElement).not.toBeNull();
+      expect(html.querySelector("ngx-decaf-genui-block")).not.toBeNull();
+      expect(
+        html.querySelector(".genui-callout__body")?.textContent?.trim(),
+      ).toBe("Pipeline is green.");
+      expect(
+        html.querySelector(".genui-fence__text")?.textContent?.trim(),
+      ).toBe("Status:");
+      expect(html.querySelector(".chat-message__text > p")).toBeNull();
+    });
+
+    it("renders a tool part carrying meta.presentationMeta through ngx-decaf-genui-block", () => {
+      const fixture = mount({
+        sessionId: "session-genui",
+        parts: [
+          {
+            id: "p-tool",
+            kind: "tool",
+            name: "render_ui",
+            status: "succeeded",
+            meta: { presentationMeta: CALLOUT },
+          },
+        ],
+      });
+      const html = element(fixture);
+
+      const block = html.querySelector(
+        ".chat-message__part--tool ngx-decaf-genui-block",
+      );
+      expect(block).not.toBeNull();
+      expect(
+        block?.querySelector(".genui-callout__title")?.textContent?.trim(),
+      ).toBe("Heads up");
+      expect(
+        block?.querySelector(".genui-callout__body")?.textContent?.trim(),
+      ).toBe("Pipeline is green.");
+    });
+
+    it("does not invent a block for a tool part without presentationMeta", () => {
+      const fixture = mount({
+        parts: [
+          {
+            id: "p-tool-plain",
+            kind: "tool",
+            name: "lookup",
+            status: "succeeded",
+            output: { ok: true },
+          },
+        ],
+      });
+
+      expect(element(fixture).querySelector("ngx-decaf-genui-block")).toBeNull();
+    });
+
+    it("keeps a plain text part as the existing .chat-message__text <p>", () => {
+      const fixture = mount({
+        parts: [{ id: "p-plain", kind: "text", text: "Just text" }],
+      });
+      const html = element(fixture);
+
+      expect(html.querySelector("ngx-decaf-genui-fence")).toBeNull();
+      expect(html.querySelector("ngx-decaf-genui-block")).toBeNull();
+      expect(
+        html.querySelector("p.chat-message__text")?.textContent?.trim(),
+      ).toBe("Just text");
+    });
   });
 });

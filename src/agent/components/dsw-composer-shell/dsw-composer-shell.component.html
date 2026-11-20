@@ -1,0 +1,61 @@
+<div class="dsw-composer-shell" [class.dsw-composer-shell--running]="running()">
+  @if (hasNotice()) {
+    <p class="dsw-composer-shell__notice" role="status">
+      {{ (noticeKey() || '') | translateFallback: notice() }}
+    </p>
+  }
+
+  @if (hasDock()) {
+    <div class="dsw-composer-shell__dock">
+      <ng-content select="[dswComposerDock]" />
+    </div>
+  }
+
+  <div class="dsw-composer-shell__card">
+    @if (hasAccessory()) {
+      <div class="dsw-composer-shell__accessory">
+        <ng-content select="[dswComposerAccessory]" />
+      </div>
+    }
+
+    <div class="dsw-composer-shell__editor">
+      <ngx-decaf-chat-composer
+        [value]="value()"
+        [running]="running()"
+        [disabled]="disabled()"
+        [placeholder]="placeholder()"
+        [minRows]="minRows()"
+        [maxRows]="maxRows()"
+        (send)="send.emit($event)"
+        (stop)="stop.emit()"
+        (valueChange)="valueChange.emit($event)"
+        (slashQuery)="slashQuery.emit($event)"
+      />
+    </div>
+
+    @if (showsToolsRow()) {
+      <div class="dsw-composer-shell__tools">
+        @if (showPermissions()) {
+          <button
+            type="button"
+            class="dsw-composer-shell__permissions"
+            [class.dsw-composer-shell__permissions--active]="permissionsActive()"
+            [attr.aria-pressed]="permissionsActive()"
+            (click)="permissionsOpen.emit()"
+          >
+            {{ permissionsLabelKey() | translateFallback: permissionsLabelFallback() }}
+          </button>
+        }
+        <div class="dsw-composer-shell__tools-slot">
+          <ng-content select="[dswComposerTools]" />
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (hasFooter()) {
+    <div class="dsw-composer-shell__footer">
+      <ng-content select="[dswComposerFooter]" />
+    </div>
+  }
+</div>

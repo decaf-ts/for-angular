@@ -87,6 +87,11 @@
     },
     {
       "glob": "README.md",
+      "input": "gen-ui",
+      "output": "gen-ui"
+    },
+    {
+      "glob": "README.md",
       "input": "cron",
       "output": "cron"
     },

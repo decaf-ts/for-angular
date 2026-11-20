@@ -1,4 +1,12 @@
 import { Component, computed, input } from "@angular/core";
+import {
+  GenuiBlockComponent,
+  GenuiFenceComponent,
+  isGenuiSpec,
+  splitGenuiFences,
+  type GenuiRenderContext,
+  type GenuiSpec,
+} from "@decaf-ts/for-angular/gen-ui";
 import { AgentTranslateFallbackPipe } from "../../i18n/agent-translate-fallback.pipe";
 import type {
   AgentChatAttachment,
@@ -24,6 +32,8 @@ import { ChatReasoningComponent } from "../chat-reasoning/chat-reasoning.compone
     ChatReasoningComponent,
     ChatCodeBlockComponent,
     AgentTranslateFallbackPipe,
+    GenuiFenceComponent,
+    GenuiBlockComponent,
   ],
   standalone: true,
 })
@@ -50,6 +60,13 @@ export class ChatMessageComponent {
   readonly avatarIcon = input<string | null>(null);
   /** Optional role label override. */
   readonly roleLabel = input<string | null>(null);
+  /**
+   * @description Conversation session id used as the GenUI action/provenance scope
+   * @summary Forwarded into every {@link GenuiRenderContext} built by
+   * {@link ChatMessageComponent.genuiContext}, so inline GenUI blocks and the
+   * session panel resolve the same interaction state and action provenance.
+   */
+  readonly sessionId = input<string>("");
 
   /** Whether structured parts are present. */
   readonly hasParts = computed(() => this.parts().length > 0);
@@ -98,6 +115,50 @@ export class ChatMessageComponent {
   /** Narrows a message part to its code shape for the template. */
   asCode(part: AgentChatMessagePart): AgentChatCodePart {
     return part as AgentChatCodePart;
+  }
+
+  /**
+   * @description Whether a text part contains at least one `dsh-ui` fence
+   * @summary Cheaply skips plain text (no triple backticks) before splitting
+   * fences, then reports whether any segment parsed as GenUI. The template uses
+   * this to choose the fence renderer over the plain text renderer.
+   * @param {string} text The message part text.
+   * @returns {boolean} `true` when at least one GenUI fence is present.
+   */
+  hasGenui(text: string): boolean {
+    return text.includes("```") && splitGenuiFences(text).some((segment) => segment.kind === "genui");
+  }
+
+  /**
+   * @description Build the GenUI render context for one inline part
+   * @summary Uses the message part id as the block id and derives a stable
+   * inline spec id, keeping each fence's interaction state independent.
+   * @param {AgentChatMessagePart} part The part being rendered.
+   * @returns {GenuiRenderContext} The context for the inline fence.
+   */
+  genuiContext(part: AgentChatMessagePart): GenuiRenderContext {
+    return {
+      sessionId: this.sessionId(),
+      blockId: part.id,
+      specId: `${part.id}:inline`,
+    };
+  }
+
+  /**
+   * @description Read the repaired spec carried by a `render_ui` tool result
+   * @summary Accepts either a spec directly in `meta` or a spec under
+   * `meta.presentationMeta`. Returns `null` when the tool carried no valid spec,
+   * in which case the tool row renders without a presentation.
+   * @param {AgentChatToolPart} tool The tool part.
+   * @returns {GenuiSpec|null} The presentation spec, or `null`.
+   */
+  presentationSpec(tool: AgentChatToolPart): GenuiSpec | null {
+    const meta = tool.meta;
+    if (meta === null || typeof meta !== "object") return null;
+    if (isGenuiSpec(meta)) return meta;
+    if (!("presentationMeta" in meta)) return null;
+    const spec = (meta as { presentationMeta?: unknown }).presentationMeta;
+    return isGenuiSpec(spec) ? spec : null;
   }
 
   /** Tracks message parts by id. */

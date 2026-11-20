@@ -92,14 +92,17 @@ Standalone agent conversation UI over a graph workflow run, exported from the
 [`/agent`](./agent/README.md) secondary entry point. `/agent` reuses the graph
 I/O viewer from [`/diagrams`](./diagrams/README.md) through its public
 specifier, so it needs the same optional peers (`@decaf-ts/as-graph`,
-`ng-diagram`). The entry point ships the shell together with the transport
-contract (`AgentChatTransport` with `send`/`replay`/`cancel`), the
+`ng-diagram`) plus the `@ai-sdk/angular` peer that backs its conversation
+state machine. The entry point ships the shell together with the SDK transport
+seam (`AgentChatSdkTransport`, the `AgentChatUIMessage` envelope) and the
+legacy `AgentChatTransport` contract (`send`/`replay`/`cancel`), the
 `AGENT_CHAT_TRANSPORT`, `AGENT_CHAT_HISTORY_SOURCE` and
 `AGENT_CHAT_KNOWLEDGE_BASE_SOURCE` injection tokens, the composer/message
-models, the envelope fold (`agentChatFoldEnvelope`), the per-component
-`AgentChatService` conversation state, the markdown transcript builder, the
-in-memory history/knowledge-base sources, the media-URL scheme guard
-(`safeMediaUrl`), and the translation fallback pipe.
+models, the envelope fold (`agentChatFoldEnvelope`) and the
+`AgentChatEnvelopeChunkProducer` that converts run envelopes into
+`UIMessageChunk`s, the per-component `AgentChatService` conversation state,
+the markdown transcript builder, the in-memory history/knowledge-base sources,
+the media-URL scheme guard (`safeMediaUrl`), and the translation fallback pipe.
 The shell owns only transient UI state (draft, staged attachments, drawers,
 inline editing, selectors): it projects `AgentChatService` signals into the
 `ngx-decaf-chat-*` component suite below and forwards user actions back to the
@@ -144,14 +147,39 @@ namespace chips derive from the configured workflow document's auth metadata.
 
 ### Agent chat transports and data sources
 
-Every run goes through the injectable `AgentChatTransport` contract (`send`,
-`replay`, `cancel`). The default `AGENT_CHAT_TRANSPORT` is
-`GraphRunAgentChatTransport`, which runs the configured workflow over the
-graph backend's `POST /graph/runs` + SSE envelope stream (replay from sequence
-zero, idempotent cancel); `AgentChatService` folds every envelope into
-transcript state with `agentChatFoldEnvelope`. Override the token at component
-or environment level to plug in an alternative transport (e.g. the optional
-`@ai-sdk/angular` peer, or the scripted fake transport below).
+The conversation runs on the `@ai-sdk/angular` `Chat` state machine (optional
+peer, `^3.0.166`): `Chat` owns the transcript, streaming status and tool parts
+from the transport seam onward, and `AgentChatService` projects `Chat.messages`
+into the `AgentChatMessageView` read model the `ngx-decaf-chat-*` components
+render. Compared with the envelope-fold model this replaces:
+
+- `AgentChatService.messages` is a read-only projection of the SDK message
+  list (a `computed` signal) — mutate the transcript through the service's
+  `editMessage`/`removeMessage`/`setVote`/`reset` helpers instead of writing
+  the signal;
+- message ids are SDK-generated (`<runId>:assistant` for agent messages)
+  rather than the old `user:<n>` / `error:<n>` local counters;
+- the `pending` placeholder flag is retired — the SDK state machine owns the
+  placeholder/streaming bookkeeping (the `streaming` view flag remains);
+- `send`/`replay` schedule the roundtrip through the SDK and return
+  immediately — stream/transport failures surface on the `error` signal (with
+  the `backendAvailable` tri-state for backend unavailability) instead of
+  rejecting the call.
+
+Every run goes through the injectable `AGENT_CHAT_TRANSPORT` token. The
+default `GraphRunAgentChatTransport` implements the SDK `ChatTransport` seam
+(`AgentChatSdkTransport`) on top of the graph backend's `POST /graph/runs` +
+SSE envelope stream, folding each envelope into `UIMessageChunk`s with
+`AgentChatEnvelopeChunkProducer` (replay from sequence zero via
+`reconnectToStream`, idempotent cancel). Decaf-owned domain state (telemetry
+rows, structured-object history, backend availability) travels through the
+`AgentChatSideChannelHandlers` side channel alongside the chunk stream, never
+duplicated into the SDK message model. A transport that still implements the
+legacy envelope-callback `AgentChatTransport` contract is bridged onto the SDK
+seam automatically by `AgentChatLegacyChatTransportAdapter`, so existing
+custom transports keep working unchanged. Override the token at component or
+environment level to plug in an alternative transport (e.g. the scripted fake
+transport below).
 
 The history rail and knowledge-base selector read through the
 `AGENT_CHAT_HISTORY_SOURCE` and `AGENT_CHAT_KNOWLEDGE_BASE_SOURCE` tokens.
@@ -173,7 +201,9 @@ live outside the transcript (tool result cards, workflow status, progress,
 agent steps, nested agents, approval, notifications) are delivered through the
 demo-only `demoEvents$` side channel so a host page can drive its own panels
 from the same scripted run. `cancel` clears every pending timer and emits a
-single `WORKFLOW_CANCELLED` terminal envelope.
+single `WORKFLOW_CANCELLED` terminal envelope. It implements the legacy
+envelope-callback contract and is bridged onto the SDK seam automatically, so
+the provider below needs no adapter.
 
 ```ts
 providers: [
@@ -269,6 +299,54 @@ characters) renders the component's placeholder/empty fallback instead.
 | --- | --- | --- |
 | `ChatNotificationComponent` | `ngx-decaf-chat-notification` | Toast stack with severity icons, auto-dismiss timers and action forwarding |
 | `ChatTelemetryComponent` | `ngx-decaf-chat-telemetry` | Collapsible telemetry panel listing roundtrip rows with durations and tokens |
+
+### `<ngx-decaf-terminal-surface>`
+
+Web terminal front-door for human-in-the-loop agent interactions — the model's
+`ask_user_question` questions and tool-approval requests — exported from the
+`/terminal` secondary entry point together with the two child components and
+the snapshot/answer types. A host fetches pending `TerminalInteractionSnapshot`s
+from its backend, feeds them to the surface, and posts the emitted answers
+back; the decaf harness client mounts it on its `/terminal` page.
+
+| Binding | Type | Description |
+| --- | --- | --- |
+| `[interactions]` | `TerminalInteractionSnapshot[]` | Interaction snapshots (pending and settled) |
+| `[activeId]` | `string \| null` | Interaction to focus; defaults to the first pending one |
+| `[title]` | `string` | Surface title override (default localized `agent.terminal.surface.title`) |
+| `[disabled]` | `boolean` | Blocks answering/cancelling (default `false`) |
+
+Outputs: `select` (`string` — interaction id picked in the pending list),
+`answer` (`TerminalAnswerSubmission` — question answers or an approval decision
+for the focused interaction), and `cancel` (`TerminalCancelRequest` for the
+focused interaction).
+
+```html
+<ngx-decaf-terminal-surface
+  [interactions]="interactions()"
+  [activeId]="activeId()"
+  [disabled]="busy() !== null"
+  (select)="setActive($event)"
+  (answer)="submitAnswer($event)"
+  (cancel)="cancelInteraction($event)">
+</ngx-decaf-terminal-surface>
+```
+
+The child components can also be used directly:
+
+- `<ngx-decaf-terminal-question>` renders one question interaction's
+  `TerminalQuestionItem[]`: single- or multi-select options plus an optional
+  custom answer per question, with `secret` questions rendered as masked
+  inputs. Inputs: `[questions]`, `[disabled]`; outputs: `answered`
+  (`TerminalQuestionResult`) and `cancel`.
+- `<ngx-decaf-terminal-approval>` renders one approval interaction's
+  `TerminalApprovalPayload` — tool name and description, JSON-serialized
+  arguments, request reason. Inputs: `[payload]`, `[reason]`, `[disabled]`;
+  outputs: `decide` (`TerminalApprovalDecision`, `{ approved }`) and `cancel`.
+
+Labels resolve `agent.terminal.*` translation keys through the agent
+translate-fallback pipe (the `/terminal → /agent` dependency) and degrade to
+built-in English fallbacks when the host provides no translations.
 
 ### `<decaf-calendar>`
 

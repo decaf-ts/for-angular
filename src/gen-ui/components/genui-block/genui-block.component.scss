@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  color: var(--decaf-text-color, #1f2430);
+  font: inherit;
+}
+
+.genui-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid var(--decaf-border-color, #d9dee8);
+  border-radius: var(--decaf-radius-lg, 14px);
+  padding: 0.85rem;
+  background: var(--decaf-surface-color, #fff);
+}
+
+.genui-block__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.genui-block__badge {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--decaf-accent-color, #3b5bdb);
+  background: color-mix(in srgb, var(--decaf-accent-color, #3b5bdb) 12%, transparent);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
+
+.genui-block__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.genui-block__items {
+  display: flex;
+  flex-direction: column;
+}
+
+.genui-block__panel-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--decaf-muted-color, #6b7280);
+}

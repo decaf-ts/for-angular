@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.genui-fence__text {
+  white-space: pre-wrap;
+}
+
+.genui-fence__panel {
+  display: inline-block;
+  margin: 0.25rem 0;
+  font-size: 0.75rem;
+  color: var(--decaf-muted-color, #6b7280);
+}
+
+.genui-fence__fallback {
+  margin: 0.35rem 0;
+  padding: 0.5rem;
+  border-radius: 8px;
+  overflow: auto;
+  background: var(--decaf-surface-alt, #f7f8fb);
+  font-size: 0.75rem;
+  font-family: var(--decaf-font-mono, monospace);
+}

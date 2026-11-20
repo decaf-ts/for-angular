@@ -27,7 +27,8 @@ Then add only the optional peers required by the entry points you import:
 | `@decaf-ts/for-angular/code-editor` | the CodeMirror 6 family | [code-editor/README.md](./code-editor/README.md) |
 | `@decaf-ts/for-angular/barcode` | `@bwip-js/browser@^4.11.4` | [barcode/README.md](./barcode/README.md) |
 | `@decaf-ts/for-angular/calendar` | none | [calendar/README.md](../src/calendar/README.md) |
-| `@decaf-ts/for-angular/agent` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` (through `/diagrams`) | [agent/README.md](./agent/README.md) |
+| `@decaf-ts/for-angular/agent` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` (through `/diagrams`), `@ai-sdk/angular@^3.0.166` | [agent/README.md](./agent/README.md) |
+| `@decaf-ts/for-angular/terminal` | none — reuses `/agent` for the translate-fallback pipe | this README |
 | `@decaf-ts/for-angular/cron` | `cronstrue@^3.24.0` | [cron/README.md](./cron/README.md) |
 | `@decaf-ts/for-angular/diagrams` | `@decaf-ts/as-graph@^0.6.0`, `ng-diagram@^1.4.0` | [diagrams/README.md](./diagrams/README.md) |
 | `@decaf-ts/for-angular/storyboard` | none | [storyboard/README.md](./storyboard/README.md) |
@@ -38,8 +39,9 @@ The model builder is part of the **root** entry point; import
 Every entry point can be imported independently from the packed npm artifact.
 Feature-to-feature dependencies are **`/scrum → /kanban`** (the sprint board and
 backlog compose the shared Kanban primitives instead of shipping a second
-drag/drop engine) and **`/agent → /diagrams`** (the chat transcript reuses the
-graph I/O viewer). `/diagrams` receives its code-editor and model-builder
+drag/drop engine), **`/agent → /diagrams`** (the chat transcript reuses the
+graph I/O viewer), and **`/terminal → /agent`** (the terminal surface reuses
+the agent translate-fallback pipe). `/diagrams` receives its code-editor and model-builder
 surfaces through injection tokens, so it does not import those entry points.
 
 ### Compatibility
@@ -48,7 +50,8 @@ surfaces through injection tokens, so it does not import those entry points.
 | --- | --- |
 | `@angular/*` | `21.2.17` – `21.2.25` (Angular 21 line) |
 | TypeScript | `~5.9.0` (`>=5.9 <6.0`) |
-| Node / npm | `>=20.0.0` / `>=10.0.0` |
+| Node / npm | `>=22.0.0` / `>=10.0.0` |
+| `@ai-sdk/angular` | `^3.0.166` (optional peer — required by `/agent`) |
 | Server rendering | Supported: components avoid import-time `window`/`document` access and emit host placeholders. |
 | Zoneless | Not advertised or tested in this release. |
 

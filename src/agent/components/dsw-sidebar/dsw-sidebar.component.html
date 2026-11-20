@@ -1,0 +1,89 @@
+<nav
+  class="dsw-sidebar"
+  [class.dsw-sidebar--collapsed]="collapsed()"
+  [attr.aria-label]="(ariaLabelKey() || '') | translateFallback: ariaLabelFallback()"
+>
+  <div class="dsw-sidebar__top">
+    <div class="dsw-sidebar__brand">
+      <span class="dsw-sidebar__brand-slot">
+        <ng-content select="[dswSidebarBrand]" />
+      </span>
+      <span class="dsw-sidebar__brand-name">
+        {{ (titleKey() || '') | translateFallback: (title() || titleFallback()) }}
+      </span>
+    </div>
+
+    @if (collapsible()) {
+      <button
+        type="button"
+        class="dsw-sidebar__toggle"
+        [attr.aria-expanded]="!collapsed()"
+        [attr.aria-controls]="sessionsId"
+        [attr.aria-label]="toggleLabelKey() | translateFallback: toggleLabelFallback()"
+        [attr.title]="toggleLabelKey() | translateFallback: toggleLabelFallback()"
+        (click)="toggleCollapsed()"
+      >
+        <span class="dsw-sidebar__toggle-glyph" aria-hidden="true">{{ collapsed() ? '›' : '‹' }}</span>
+      </button>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="dsw-sidebar__new-session"
+    [disabled]="newSessionDisabled()"
+    [attr.aria-label]="newSessionLabelKey() | translateFallback: newSessionLabelFallback()"
+    (click)="newSession.emit()"
+  >
+    <span class="dsw-sidebar__new-session-glyph" aria-hidden="true">+</span>
+    <span class="dsw-sidebar__new-session-label">
+      {{ newSessionLabelKey() | translateFallback: newSessionLabelFallback() }}
+    </span>
+  </button>
+
+  <div
+    class="dsw-sidebar__region"
+    [id]="sessionsId"
+    role="region"
+    [attr.aria-label]="sessionsLabelKey() | translateFallback: sessionsLabelFallback()"
+  >
+    <ng-content select="[dswSidebarSessions]" />
+  </div>
+
+  @if (showPluginStatus()) {
+    <ul
+      class="dsw-sidebar__plugins"
+      [attr.aria-label]="pluginsLabelKey() | translateFallback: pluginsLabelFallback()"
+    >
+      @for (plugin of plugins(); track plugin.id) {
+        <li class="dsw-sidebar__plugin">
+          <button
+            type="button"
+            class="dsw-sidebar__plugin-button"
+            [attr.aria-label]="
+              plugin.label + ': ' + (pluginStateKey(plugin.state) | translateFallback: pluginStateFallback(plugin.state))
+            "
+            [attr.title]="plugin.detail || plugin.label"
+            (click)="pluginOpen.emit(plugin)"
+          >
+            <span
+              class="dsw-sidebar__plugin-dot"
+              [class.dsw-sidebar__plugin-dot--active]="plugin.state === 'active'"
+              [class.dsw-sidebar__plugin-dot--inactive]="plugin.state === 'inactive'"
+              [class.dsw-sidebar__plugin-dot--error]="plugin.state === 'error'"
+              aria-hidden="true"
+            ></span>
+            <span class="dsw-sidebar__plugin-label">{{ plugin.label }}</span>
+            <span class="dsw-sidebar__plugin-state">
+              {{ pluginStateKey(plugin.state) | translateFallback: pluginStateFallback(plugin.state) }}
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="dsw-sidebar__footer">
+    <ng-content select="[dswSidebarFooter]" />
+  </div>
+</nav>

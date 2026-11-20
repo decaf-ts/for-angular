@@ -42,9 +42,15 @@
         @switch (part.kind) {
           @case ("text") {
             @let text = asText(part);
-            <p class="chat-message__text" [class.chat-message__text--streaming]="text.streaming">
-              {{ text.text }}
-            </p>
+            @if (hasGenui(text.text)) {
+              <div class="chat-message__text" [class.chat-message__text--streaming]="text.streaming">
+                <ngx-decaf-genui-fence [text]="text.text" [context]="genuiContext(part)" />
+              </div>
+            } @else {
+              <p class="chat-message__text" [class.chat-message__text--streaming]="text.streaming">
+                {{ text.text }}
+              </p>
+            }
           }
           @case ("attachment") {
             @let attachmentPart = asAttachment(part);
@@ -81,6 +87,9 @@
                     <pre class="chat-message__tool-json">{{ stringify(tool.output) }}</pre>
                   }
                 </details>
+              }
+              @if (presentationSpec(tool); as spec) {
+                <ngx-decaf-genui-block [spec]="spec" [context]="genuiContext(part)" />
               }
             </div>
           }

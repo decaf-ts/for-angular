@@ -2,14 +2,15 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import type { GraphRunEventEnvelope } from "@decaf-ts/as-graph/shared";
 import { GraphExecutionEventType } from "@decaf-ts/as-graph/shared";
 
+import type { UIMessageChunk } from "ai";
+
 import { AgentChatService } from "../../services/AgentChatService";
 import { AGENT_CHAT_TRANSPORT } from "../../tokens/agent-chat.tokens";
 import type {
   AgentChatMessageEdit,
   AgentChatMessageView,
-  AgentChatSendRequest,
-  AgentChatTransport,
-  AgentChatTransportHandlers,
+  AgentChatSdkTransport,
+  AgentChatUIMessage,
 } from "../../types";
 import { ChatMessageEditorComponent } from "./chat-message-editor.component";
 
@@ -22,9 +23,10 @@ const MESSAGE: AgentChatMessageView = {
   createdAt: "2026-10-25T10:00:00.000Z",
 };
 
-async function flush(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
+async function flush(ticks = 60): Promise<void> {
+  for (let index = 0; index < ticks; index += 1) {
+    await Promise.resolve();
+  }
 }
 
 function mount(
@@ -243,20 +245,36 @@ describe("ChatMessageEditorComponent", () => {
   it("truncates and re-sends through the real chat service", async () => {
     TestBed.resetTestingModule();
     let runSequence = 0;
-    const transport = {
-      send: jest.fn(
-        async (
-          _request: AgentChatSendRequest,
-          handlers: AgentChatTransportHandlers,
-        ) => {
-          const runId = `run-${++runSequence}`;
-          handlers.onTerminal(terminalEnvelope(runId));
-          return { runId, eventsUrl: `/graph/runs/${runId}/events` };
+    const sendMessages = jest.fn((options: { messages: AgentChatUIMessage[] }) => {
+      const runId = `run-${++runSequence}`;
+      const messageId = `${runId}:assistant`;
+      const chunks: UIMessageChunk[] = [
+        { type: "start", messageId },
+        { type: "text-start", id: `${messageId}:text` },
+        {
+          type: "text-delta",
+          id: `${messageId}:text`,
+          delta: `answer ${runSequence}`,
         },
-      ),
-      replay: jest.fn().mockResolvedValue(undefined),
+        { type: "text-end", id: `${messageId}:text` },
+        { type: "finish", finishReason: "stop" },
+      ];
+      return Promise.resolve(
+        new ReadableStream<UIMessageChunk>({
+          start(controller) {
+            for (const chunk of chunks) controller.enqueue(chunk);
+            controller.close();
+          },
+        }),
+      );
+    });
+    const transport = {
+      resumeStreamIsReplay: true,
+      sendMessages,
+      reconnectToStream: jest.fn().mockResolvedValue(null),
       cancel: jest.fn().mockResolvedValue(undefined),
-    } as unknown as AgentChatTransport & { send: jest.Mock };
+      close: jest.fn(),
+    } as unknown as AgentChatSdkTransport;
 
     TestBed.configureTestingModule({
       imports: [ChatMessageEditorComponent],
@@ -268,10 +286,19 @@ describe("ChatMessageEditorComponent", () => {
 
     const service = TestBed.inject(AgentChatService);
     await service.send("first question");
+    await flush();
     await service.send("second question");
-    expect(service.messages()).toHaveLength(2);
+    await flush();
 
-    const target = service.messages()[0];
+    const users = service
+      .messages()
+      .filter((message) => message.role === "user");
+    expect(users.map((message) => message.content)).toEqual([
+      "first question",
+      "second question",
+    ]);
+
+    const target = users[0];
     const fixture = mount({ message: target });
     const saves: AgentChatMessageEdit[] = [];
     fixture.componentInstance.save.subscribe((edit) => saves.push(edit));
@@ -279,14 +306,30 @@ describe("ChatMessageEditorComponent", () => {
     typeInto(fixture, "revised question");
     submit(fixture);
     await flush();
-    await flush();
     fixture.detectChanges();
 
-    expect(transport.send).toHaveBeenCalledTimes(3);
-    const request = transport.send.mock.calls[2][0] as AgentChatSendRequest;
-    expect(request.message).toBe("revised question");
-    expect(service.messages()).toHaveLength(1);
-    expect(service.messages()[0].content).toBe("revised question");
+    expect(sendMessages).toHaveBeenCalledTimes(3);
+    const request = sendMessages.mock.calls[2][0];
+    const lastUser = [...request.messages]
+      .reverse()
+      .find((message) => message.role === "user");
+    expect(
+      lastUser?.parts
+        .filter(
+          (part): part is { type: "text"; text: string } => part.type === "text",
+        )
+        .map((part) => part.text)
+        .join(""),
+    ).toBe("revised question");
+    expect(
+      service
+        .messages()
+        .filter((message) => message.role === "user")
+        .map((message) => message.content),
+    ).toEqual(["revised question"]);
+    expect(
+      service.messages().some((message) => message.content === "answer 1"),
+    ).toBe(false);
     expect(saves).toEqual([
       { messageId: target.id, text: "revised question" },
     ]);

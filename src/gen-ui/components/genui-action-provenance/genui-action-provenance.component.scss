@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.genui-provenance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.78rem;
+  border-radius: 8px;
+  background: var(--decaf-surface-alt, #f4f6fb);
+  color: var(--decaf-muted-color, #4b5563);
+}
+
+.genui-provenance__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.genui-provenance[data-status="sent"] .genui-provenance__dot {
+  background: #16a34a;
+}
+
+.genui-provenance[data-status="failed"] .genui-provenance__dot {
+  background: #dc2626;
+}
+
+.genui-provenance[data-status="pending"] .genui-provenance__dot {
+  background: #d97706;
+}
+
+.genui-provenance__name {
+  font-weight: 600;
+}
+
+.genui-provenance__summary {
+  flex-basis: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+.genui-provenance__details {
+  flex-basis: 100%;
+}
+
+.genui-provenance__json {
+  margin: 0.25rem 0 0;
+  max-height: 10rem;
+  overflow: auto;
+  font-size: 0.75rem;
+  background: var(--decaf-surface-color, #fff);
+  border-radius: 6px;
+  padding: 0.4rem;
+}

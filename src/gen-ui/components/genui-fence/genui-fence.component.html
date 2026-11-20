@@ -1,0 +1,18 @@
+@for (segment of segments(); track $index) {
+  @if (segment.kind === "text") {
+    @if (segment.text.trim() !== "") {
+      <span class="genui-fence__text">{{ segment.text }}</span>
+    }
+  } @else if (segment.spec !== null && segment.spec.panel === true) {
+    <span class="genui-fence__panel">{{ panelHint }}</span>
+  } @else if (segment.spec !== null) {
+    <ngx-decaf-genui-block
+      [spec]="segment.spec"
+      [context]="context()"
+      (action)="action.emit($event)"
+      (openLink)="openLink.emit($event)"
+    />
+  } @else {
+    <pre class="genui-fence__fallback"><code>{{ segment.raw }}</code></pre>
+  }
+}
