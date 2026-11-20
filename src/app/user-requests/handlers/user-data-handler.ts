@@ -53,7 +53,8 @@ export class UserDataUserRequestHandler extends UserRequestHandler<UserData> {
   async handle(request: UserRequest<UserData>, ...args: ContextualArgs<Context<ContextFlags<any>>>): Promise<UserData> {
     const { log } = await this.logCtx([request, ...args], this.handle, true);
     log.info(`Resolving user-data request "${request.id}"`);
-    log.debug(`User-data request payload: ${JSON.stringify(request.payload)}`);
+    // R2-7: payload carries PII (name/email) — log the shape only, never the values.
+    log.debug(`User-data request payload received (fields: ${Object.keys(request.payload ?? {}).join(', ') || 'none'})`);
     try {
       const submitted = await this.getInput(request, ...args);
       log.verbose(`Normalizing user-data submission for request "${request.id}"`);
@@ -62,7 +63,7 @@ export class UserDataUserRequestHandler extends UserRequestHandler<UserData> {
         email: submitted.email.toLowerCase(),
       };
       log.info(`Resolved user-data request "${request.id}"`);
-      log.debug(`Normalized user-data payload: ${JSON.stringify(normalized)}`);
+      log.debug('Normalized user-data payload ok (PII values not logged)');
       return normalized;
     } catch (error) {
       log.error(`Failed to resolve user-data request "${request.id}"`, error);

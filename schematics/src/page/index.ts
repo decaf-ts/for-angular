@@ -22,6 +22,14 @@ function addRouteToAppRoutes(options: Schema): Rule {
     const name = strings.dasherize(options.name);
     const className = strings.classify(options.name) + 'Page';
     const routePath = options.routePath || name;
+    // R2-13: routePath is interpolated into generated source (dev-time tool, developer-is-actor),
+    // but a hostile value could smuggle code into app.routes.ts. Fail closed on anything outside
+    // the URL-path character set. (Schema pattern enforces the same rule at option parsing.)
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9\-_/]*$/.test(routePath)) {
+      throw new Error(
+        `Invalid routePath "${routePath}": only letters, digits, "-", "_" and "/" are allowed (must start with a letter or digit).`
+      );
+    }
     const pagePath = options.path || 'src/app/pages';
 
     // Path to app.routes.ts

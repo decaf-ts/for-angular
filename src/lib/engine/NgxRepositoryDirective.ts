@@ -325,11 +325,8 @@ export class NgxRepositoryDirective<M extends Model> extends DecafComponent<M> {
   async paginate(
     limit: number = this.limit,
     sortDirection: OrderDirection = this.sortDirection,
-    condition?: Condition<M>
+    _condition?: Condition<M>
   ): Promise<Paginator<M>> {
-    if (!condition) {
-      this.buildCondition();
-    }
     // !! use where condition will make paginator ignores sortBy and col name
     return await this.repository
       .select()

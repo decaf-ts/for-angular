@@ -1,6 +1,5 @@
-import type { Config } from 'jest';
 
-const config: Config = {
+const config = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'jsdom',

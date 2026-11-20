@@ -154,14 +154,7 @@
                 "input": "src/assets",
                 "output": "assets"
               },
-              "src/manifest.webmanifest",
-              "src/cli-module.ts",
-              "src/lib/**/*",
-              {
-                "glob": "*.json",
-                "input": "node_modules/@decaf-ts/as-graph/assets/i18n",
-                "output": "assets/i18n/as-graph"
-              }
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "node_modules/ng-diagram/styles.css",
@@ -238,14 +231,7 @@
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               },
-              "src/manifest.webmanifest",
-              "src/cli-module.ts",
-              "src/lib/**/*",
-              {
-                "glob": "*.json",
-                "input": "node_modules/@decaf-ts/as-graph/assets/i18n",
-                "output": "assets/i18n/as-graph"
-              }
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "node_modules/ng-diagram/styles.css",

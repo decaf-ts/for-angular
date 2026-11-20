@@ -110,7 +110,7 @@ describe('[SAA-1630 PROBE] FA-3 modal inline content re-verification', () => {
     expect(img?.getAttribute('onerror')).toContain('__fa3Executed');
   });
 
-  it('live HTMLElement inline content is appended as a node (no serialization, no sanitizer)', async () => {
+  it('R2-9: live non-image HTMLElement inline content fails closed (images-only element path)', async () => {
     const el = document.createElement('span');
     el.className = 'probe-live';
     el.innerHTML = '<b>live-node</b>';
@@ -120,8 +120,12 @@ describe('[SAA-1630 PROBE] FA-3 modal inline content re-verification', () => {
     fixture.detectChanges();
     await settle();
 
+    // R2-9 remediation: the element path is images-only — a non-image live node
+    // is never attached (dropped with a dev-mode warning), so no unsanitized
+    // markup reaches the DOM through this channel anymore.
     const host = inlineHost();
-    expect(host?.querySelector('.probe-live b')?.textContent).toBe('live-node');
+    expect(host?.querySelector('.probe-live')).toBeNull();
+    expect(host?.querySelector('.probe-live b')).toBeNull();
   });
 });
 

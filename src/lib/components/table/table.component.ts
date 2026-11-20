@@ -431,7 +431,7 @@ export class TableComponent extends ListComponent implements OnInit {
             {
               index: this.filterBy,
               value: this.filterValue,
-              condition: 'Contains',
+              condition: 'Equal',
             },
           ],
         } as IFilterQuery);
@@ -474,7 +474,7 @@ export class TableComponent extends ListComponent implements OnInit {
           {
             index: this.filterBy,
             value: this.filterValue,
-            condition: 'Contains',
+            condition: 'Equal',
           },
         ],
       } as IFilterQuery);

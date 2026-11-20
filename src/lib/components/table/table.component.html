@@ -120,6 +120,10 @@
                       : {}
                   "
                 >
+                  <!-- rich-content channel (R2-5): host/model HTML via Angular's default sanitizer.
+                       Never pipe through safeHtml (bypass) and never swap to {{ }} — production hosts
+                       (ew-frontend) ship icons/images through cell values. Interactions are wired by
+                       framework callbacks, never markup attributes. Locked by rich-content-channel.contract.spec.ts -->
                   @if (col?.value.handler) {
                     <!-- keyboard entry point only: the click bubbles to the <td>, which owns the handler logic -->
                     <button

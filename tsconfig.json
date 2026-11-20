@@ -6,6 +6,7 @@
     "strictPropertyInitialization": true, // default true
     "skipLibCheck": true,
     "noImplicitReturns": false, // default true
+    "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "downlevelIteration": true,
@@ -21,7 +22,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "bundler",
-    "resolvePackageJsonExports": true,
     "importHelpers": true,
     "typeRoots": ["node_modules/@types"],
     "target": "es2022",

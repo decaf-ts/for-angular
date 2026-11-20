@@ -15,15 +15,56 @@ import {
   SelectCustomEvent,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LeafletType } from 'src/app/ew/fabric';
-import { Batch } from 'src/app/ew/fabric/Batch';
-import { Product } from 'src/app/ew/fabric/Product';
-import { getDoucumentOptions } from 'src/app/ew/utils/helpers';
 import { CrudFieldComponent } from 'src/lib/components/crud-field/crud-field.component';
 import { IconComponent } from 'src/lib/components/icon/icon.component';
 import { getModelAndRepository } from 'src/lib/engine';
 import { Dynamic } from 'src/lib/engine/decorators';
 import { getOnWindow, setOnWindow, windowEventEmitter } from 'src/lib/utils/helpers';
+
+/**
+ * Minimal ew-domain contracts inlined after the `src/app/ew` demo folder removal
+ * (the real definitions live in the ew-frontend / ptp-toolkit projects). This demo
+ * component only needs the product/batch/leaflet-shape plumbing below.
+ */
+export enum LeafletType {
+  leaflet = 'leaflet',
+  prescribingInfo = 'prescribingInfo',
+  // @deprecated
+  smpc = 'smpc',
+}
+
+export interface Product {
+  productCode: string;
+  inventedName?: string;
+  nameMedicinalProduct?: string;
+  [key: string]: unknown;
+}
+
+export interface Batch {
+  batchNumber: string;
+  productCode: string;
+  [key: string]: unknown;
+}
+
+const DocumentsTypes = {
+  leaflet: 'leaflet',
+  prescribingInfo: 'prescribingInfo',
+  SMPC: 'SMPC',
+} as const;
+
+function getDoucumentOptions(type: 'product' | 'batch' = 'product'): Array<{ text: string; value: string; disabled: boolean; selected: boolean }> {
+  return Object.values(DocumentsTypes)
+    .map((doc) => ({
+      text: doc.toLowerCase(),
+      value: doc,
+      disabled: doc === DocumentsTypes.SMPC,
+      selected: doc === DocumentsTypes.leaflet,
+    }))
+    .filter((doc) => {
+      if (type === 'batch') return doc.value !== DocumentsTypes.prescribingInfo;
+      return doc;
+    });
+}
 
 @Dynamic()
 @Component({
@@ -243,7 +284,7 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements After
     const repo = getModelAndRepository('Batch');
     if (repo) {
       const { repository, pk } = repo;
-      const batch = (await repository.read(uid)) as Batch;
+      const batch = (await repository.read(uid)) as unknown as Batch;
       if (batch) {
         this.value = batch.batchNumber as string;
         this.setValue(this.value);
@@ -278,7 +319,7 @@ export class AppSelectFieldComponent extends CrudFieldComponent implements After
         .eq(this.value)
         .or(Condition.attribute<Model>('batchNumber' as keyof Model).eq(uid));
       const query = await repository.select().where(condition).execute();
-      const productCode = query?.length ? (query[0] as Batch).productCode : '';
+      const productCode = query?.length ? (query[0] as unknown as Batch).productCode : '';
       this.setValue(productCode);
     }
   }
